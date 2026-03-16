@@ -68,12 +68,32 @@ table.stats tbody tr:hover td{background:rgba(255,255,255,0.02)}
 .undo-btn{padding:6px 14px;background:transparent;color:#7a8190;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .undo-btn:hover{border-color:#e85555;color:#e85555}
 .undo-btn:disabled{opacity:0.3;cursor:not-allowed}
+tr.used-player td{text-decoration:line-through;color:#4a5060 !important;opacity:0.5}
+tr.used-player input[type=radio]{cursor:not-allowed}
+tr.inj-out td{color:#e85555 !important;opacity:0.7}
+tr.inj-out td.ppg{color:#e85555 !important}
+tr.inj-out input[type=radio]{cursor:not-allowed;opacity:0.4}
+tr.inj-q td{color:#f0a030 !important}
+tr.inj-q td.ppg{color:#f0a030 !important}
+.inj-badge{font-size:10px;font-weight:500;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.inj-badge.out{background:rgba(232,85,85,0.2);color:#e85555;border:1px solid rgba(232,85,85,0.3)}
+.inj-badge.q{background:rgba(240,160,48,0.2);color:#f0a030;border:1px solid rgba(240,160,48,0.3)}
 .reset-btn{padding:6px 14px;background:transparent;color:#e85555;border:1px solid rgba(232,85,85,0.4);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .reset-btn:hover{background:rgba(232,85,85,0.15);border-color:#e85555}
 table.stats td.radio-col{width:28px;padding:7px 4px 7px 8px}
 input[type=radio]{accent-color:#e8c84a;width:14px;height:14px;cursor:pointer}
 tr.used-player td{text-decoration:line-through;color:#4a5060 !important;opacity:0.5}
 tr.used-player input[type=radio]{cursor:not-allowed}
+.inj-out{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-left:6px;background:rgba(232,85,85,0.2);color:#e85555;vertical-align:middle}
+.inj-q{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-left:6px;background:rgba(232,200,74,0.15);color:#e8c84a;vertical-align:middle}
+.inj-row-out td{opacity:0.45}
+.inj-row-out td.ppg{color:#e85555 !important}
+tr.injury-out td{color:#e85555 !important;opacity:0.7}
+tr.injury-out td:first-child{pointer-events:none}
+tr.injury-out input[type=radio]{cursor:not-allowed;accent-color:#e85555}
+tr.injury-out td.player-name-cell::after{content:' ❌ OUT';font-size:10px;color:#e85555;font-weight:500}
+tr.injury-questionable td{color:#f0a030 !important}
+tr.injury-questionable td.player-name-cell::after{content:' ⚠️ QUEST.';font-size:10px;color:#f0a030;font-weight:500}
 .footer{text-align:center;font-size:11px;color:#4a5060;padding:3rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.07);margin-top:3rem;max-width:1100px;margin-left:auto;margin-right:auto}
 @media(max-width:600px){.main{padding:1rem}.site-header{padding:0 1rem}.filter-key{display:none}.tab{font-size:13px}}
 </style>
@@ -103,7 +123,7 @@ tr.used-player input[type=radio]{cursor:not-allowed}
     <div class="selected-player" id="selectedLabel">No player selected</div>
     <button class="send-btn" id="sendBtn" onclick="sendToSheets()" disabled>Send to Sheet ↗</button>
     <button class="undo-btn" id="undoBtn" onclick="undoLast()" disabled>↩ Undo</button>
-<!--    <button class="reset-btn" id="resetBtn" onclick="resetDraft()">⟳ Reset Draft</button> -->
+
     <span class="sheets-status" id="sheetsStatus"></span>
   </div>
 </div>
@@ -117,14 +137,14 @@ tr.used-player input[type=radio]{cursor:not-allowed}
 </div>
 <div class="footer">2026 NCAA Men's Tournament &nbsp;·&nbsp; Seeds 1–2: 7+ PPG &nbsp;·&nbsp; Seeds 3–4: 8+ PPG &nbsp;·&nbsp; Seeds 5–16: 10+ PPG &nbsp;·&nbsp; Shared by <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="503a3522353d293e3f222239237e3a3e10373d31393c7e333f3d">[email&#160;protected]</a></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const BRACKET={
 East:{seed1:"Duke",teams:[
 {seed:1,name:"Duke",record:"32-2",src:"ESPN",players:[
 {name:"Cameron Boozer",gp:28,mpg:32.5,ppg:22.7},
 {name:"Isaiah Evans",gp:28,mpg:27.4,ppg:14.5},
-{name:"Patrick Ngongba",gp:27,mpg:22.5,ppg:10.7},
-{name:"Caleb Foster",gp:28,mpg:26.0,ppg:8.8},
+{name:"Patrick Ngongba",gp:27,mpg:22.5,ppg:10.7,inj:"Q"},
+{name:"Caleb Foster",gp:28,mpg:26.0,ppg:8.8,inj:"OUT"},
 {name:"Cayden Boozer",gp:28,mpg:20.4,ppg:7.1},
 {name:"Dame Sarr",gp:28,mpg:21.5,ppg:5.8},
 {name:"Nikolas Khamenia",gp:28,mpg:18.8,ppg:5.7},
@@ -305,7 +325,8 @@ South:{seed1:"Florida",teams:[
 {name:"Elliot Cadeau",gp:32,mpg:30.5,ppg:16.3},
 {name:"Ian Jackson",gp:32,mpg:29.0,ppg:15.6},
 {name:"Drake Powell",gp:32,mpg:27.5,ppg:13.0},
-{name:"Jalen Washington",gp:30,mpg:24.5,ppg:11.3}]},
+{name:"Jalen Washington",gp:30,mpg:24.5,ppg:11.3},
+{name:"Caleb Wilson",gp:22,mpg:26.0,ppg:9.8}]},
 {seed:7,name:"Saint Mary's",record:"27-5",src:"ESPN top scorers",players:[
 {name:"Augustas Marciulionis",gp:32,mpg:30.0,ppg:16.0},
 {name:"Mitchell Saxen",gp:32,mpg:27.5,ppg:14.3},
@@ -386,7 +407,7 @@ West:{seed1:"Arizona",teams:[
 {name:"Jace Rayl",gp:7,mpg:2.1,ppg:0.0},
 {name:"Jack Lusk",gp:7,mpg:2.1,ppg:0.0}]},
 {seed:3,name:"Gonzaga",record:"30-3",src:"ESPN",players:[
-{name:"Braden Huff",gp:12,mpg:24.9,ppg:19.0},
+{name:"Braden Huff",gp:12,mpg:24.9,ppg:19.0,inj:"Q"},
 {name:"Graham Ike",gp:11,mpg:26.9,ppg:17.0},
 {name:"Tyon Grant-Foster",gp:12,mpg:20.5,ppg:10.8},
 {name:"Adam Miller",gp:12,mpg:18.3,ppg:8.8},
@@ -538,7 +559,7 @@ Midwest:{seed1:"Michigan",teams:[
 {name:"Noah Williamson",gp:29,mpg:8.3,ppg:1.0},
 {name:"Collins Onyejiaka",gp:2,mpg:5.5,ppg:1.0}]},
 {seed:5,name:"Texas Tech",record:"22-10",src:"ESPN top scorers",players:[
-{name:"JT Toppin",gp:32,mpg:30.5,ppg:19.0},
+{name:"JT Toppin",gp:32,mpg:30.5,ppg:19.0,inj:"OUT"},
 {name:"Pop Isaacs",gp:32,mpg:29.5,ppg:16.3},
 {name:"Darrion Williams",gp:32,mpg:27.0,ppg:13.2},
 {name:"De'Vion Harmon",gp:30,mpg:25.5,ppg:11.9},
@@ -601,7 +622,15 @@ Midwest:{seed1:"Michigan",teams:[
 {name:"TBD — First Four play-in",gp:0,mpg:0,ppg:0}]}
 ]}};
 
+const INJURIES={
+  'Caleb Foster':    {status:'out', note:'Fractured foot — out for tournament'},
+  'Patrick Ngongba': {status:'q',   note:'Foot soreness — questionable'},
+  'Braden Huff':     {status:'q',   note:'Knee injury — unlikely first weekend'},
+  'JT Toppin':       {status:'out', note:'ACL tear — out for tournament'},
+};
+
 const regions=Object.keys(BRACKET);
+
 let activeRegion='East';
 const openState={};
 
@@ -626,7 +655,7 @@ function renderTeams(){
     const isOpen=!!openState[key];
     const minPPG=t.seed<=2?7:t.seed<=4?8:10;
     const isTBD=t.players[0].name.startsWith('TBD');
-    const filtered=isTBD?[]:t.players.filter(p=>p.ppg>=minPPG);
+    const filtered=isTBD?[]:t.players.filter(p=>p.ppg>=minPPG||INJURIES[p.name]);
     let bodyHtml='';
     if(isOpen){
       if(isTBD){
@@ -637,9 +666,13 @@ function renderTeams(){
         const rows=filtered.map(p=>{
           const val=`${p.name} - ${t.name}`;
           const rid=`r_${val.replace(/[^a-zA-Z0-9]/g,'_')}`;
-          return `<tr>
-            <td class="radio-col"><input type="radio" name="playerPick" id="${rid}" value="${val}" onchange="selectPlayer('${val.replace(/'/g,"\\'")}')"></td>
-            <td><label for="${rid}" style="cursor:pointer">${p.name}</label></td>
+          const inj=INJURIES[p.name];
+          const injBadge=inj ? `<span class="inj-${inj.status==='out'?'out':'q'}" title="${inj.note}">${inj.status==='out'?'OUT':'QUEST'}</span>` : '';
+          const injClass=inj && inj.status==='out' ? 'inj-row-out' : '';
+          const injDisabled=inj && inj.status==='out' ? ' disabled' : '';
+          return `<tr class="${injClass}">
+            <td class="radio-col"><input type="radio" name="playerPick" id="${rid}" value="${val}"${injDisabled} onchange="selectPlayer('${val.replace(/'/g,"\\'")}')"></td>
+            <td><label for="${rid}" style="cursor:pointer">${p.name}</label>${injBadge}</td>
             <td class="r">${p.gp}</td><td class="r">${p.mpg.toFixed(1)}</td><td class="ppg">${p.ppg.toFixed(1)}</td>
           </tr>`;
         }).join('');
@@ -664,7 +697,7 @@ function setRegion(r){activeRegion=r;renderTabs();renderMeta();renderTeams()}
 function toggle(key){openState[key]=!openState[key];renderTeams()}
 
 let currentPlayer='';
-let lastAction=null; // stores {cell, value, row} for undo
+let lastAction=null;
 
 function selectPlayer(val){
   currentPlayer=val;
@@ -774,9 +807,10 @@ function resetDraft(){
 
   // Re-enable all disabled radios and remove strikethrough from all rows
   document.querySelectorAll('input[name="playerPick"]').forEach(r=>{
+    // Don't re-enable players who are confirmed OUT
+    const row=r.closest('tr');
     r.disabled=false;
     r.checked=false;
-    const row=r.closest('tr');
     if(row) row.classList.remove('used-player');
   });
 
