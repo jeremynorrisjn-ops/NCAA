@@ -9,7 +9,7 @@
 :root {
   --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a;
   --gold:#f5c842; --text:#e8ecf0; --muted:#8b92a5; --border:#2d3148;
-  --s1:#f5c842; --s2:#22c55e; --s3:#3b82f6; --s4:#a855f7;
+  --r-east:#3b82f6; --r-south:#ef4444; --r-west:#a855f7; --r-midwest:#22c55e;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
@@ -36,16 +36,22 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .send-status.ok{color:#22c55e} .send-status.err{color:#ef4444}
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 20px}
 .tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;padding:11px 18px;text-transform:uppercase;transition:color .15s,border-color .15s}
-.tab-btn:hover{color:var(--text)} .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{border-bottom-width:3px}
+.tab-east.active{color:var(--r-east);border-bottom-color:var(--r-east)}
+.tab-south.active{color:var(--r-south);border-bottom-color:var(--r-south)}
+.tab-west.active{color:var(--r-west);border-bottom-color:var(--r-west)}
+.tab-midwest.active{color:var(--r-midwest);border-bottom-color:var(--r-midwest)}
 .region-panel{display:none;padding:18px 24px 32px} .region-panel.active{display:block}
 .region-sub{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:14px;text-transform:uppercase}
 .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
 .team-card{background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden}
 .team-header{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border)}
 .seed-badge{border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;min-width:26px;padding:2px 5px;text-align:center}
-.s1{background:var(--s1);color:#0f1117} .s2{background:var(--s2);color:#0f1117}
-.s3{background:var(--s3);color:#fff}    .s4{background:var(--s4);color:#fff}
-.so{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.r-east{background:var(--r-east);color:#fff}
+.r-south{background:var(--r-south);color:#fff}
+.r-west{background:var(--r-west);color:#fff}
+.r-midwest{background:var(--r-midwest);color:#0f1117}
 .team-name{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;flex:1}
 .team-record{font-size:11px;color:var(--muted)}
 .ff-tag{font-size:9px;background:#f5c84222;color:var(--gold);border:1px solid #f5c84244;border-radius:3px;padding:1px 5px;font-weight:700;letter-spacing:.5px}
@@ -101,10 +107,10 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
   <span class="send-status" id="sendStatus"></span>
 </div>
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('East',this)">East</button>
-  <button class="tab-btn" onclick="switchTab('South',this)">South</button>
-  <button class="tab-btn" onclick="switchTab('West',this)">West</button>
-  <button class="tab-btn" onclick="switchTab('Midwest',this)">Midwest</button>
+  <button class="tab-btn tab-east active" onclick="switchTab('East',this)">East</button>
+  <button class="tab-btn tab-south" onclick="switchTab('South',this)">South</button>
+  <button class="tab-btn tab-west" onclick="switchTab('West',this)">West</button>
+  <button class="tab-btn tab-midwest" onclick="switchTab('Midwest',this)">Midwest</button>
 </div>
 <div id="East"    class="region-panel active"><p class="region-sub">East Region &mdash; Washington D.C. &nbsp;|&nbsp; #1 Overall: Duke</p><div class="teams-grid" id="g-East"></div></div>
 <div id="South"   class="region-panel"><p class="region-sub">South Region &mdash; Houston &nbsp;|&nbsp; #1 Seed: Florida</p><div class="teams-grid" id="g-South"></div></div>
@@ -117,8 +123,8 @@ East:[
 {seed:1,name:"Duke",rec:"32-2",ff:false,players:[
 {n:"Cameron Boozer",gp:34,mpg:33.0,ppg:22.5,s:null},
 {n:"Isaiah Evans",gp:34,mpg:27.9,ppg:14.9,s:null},
-{n:"Patrick Ngongba II",gp:29,mpg:22.4,ppg:10.7,s:null},
-{n:"Caleb Foster",gp:31,mpg:25.4,ppg:8.5,s:null},
+{n:"Patrick Ngongba II",gp:29,mpg:22.4,ppg:10.7,s:"QUEST",r:"Right foot soreness"},
+{n:"Caleb Foster",gp:31,mpg:25.4,ppg:8.5,s:"OUT",r:"Fractured foot, post-surgery"},
 {n:"Cayden Boozer",gp:34,mpg:21.8,ppg:7.1,s:null}]},
 {seed:2,name:"UConn",rec:"29-5",ff:false,players:[
 {n:"Tarris Reed Jr.",gp:29,mpg:26.2,ppg:13.7,s:null},
@@ -143,7 +149,7 @@ East:[
 {n:"Oziyah Sellers",gp:34,mpg:28.9,ppg:10.7,s:null}]},
 {seed:6,name:"Louisville",rec:"23-10",ff:false,players:[
 {n:"Ryan Conwell",gp:32,mpg:30.6,ppg:18.7,s:null},
-{n:"Mikel Brown Jr.",gp:21,mpg:29.2,ppg:18.2,s:null},
+{n:"Mikel Brown Jr.",gp:21,mpg:29.2,ppg:18.2,s:"QUEST",r:"Back injury, day-to-day"},
 {n:"J'Vonne Hadley",gp:32,mpg:27.8,ppg:11.8,s:null},
 {n:"Isaac McKneely",gp:33,mpg:28.8,ppg:10.6,s:null}]},
 {seed:7,name:"UCLA",rec:"23-11",ff:false,players:[
@@ -282,7 +288,7 @@ West:[
 {n:"C.J. Cox",gp:35,mpg:24.4,ppg:8.3,s:null}]},
 {seed:3,name:"Gonzaga",rec:"30-3",ff:false,players:[
 {n:"Graham Ike",gp:29,mpg:30.8,ppg:19.7,s:null},
-{n:"Braden Huff",gp:18,mpg:25.4,ppg:17.8,s:null},
+{n:"Braden Huff",gp:18,mpg:25.4,ppg:17.8,s:"QUEST",r:"Kneecap dislocation, out first rounds"},
 {n:"Tyon Grant-Foster",gp:33,mpg:21.6,ppg:11.2,s:null},
 {n:"Mario Saint-Supery",gp:33,mpg:22.4,ppg:8.6,s:null},
 {n:"Davis Fogle",gp:28,mpg:16.2,ppg:8.4,s:null}]},
@@ -300,7 +306,7 @@ West:[
 {seed:6,name:"BYU",rec:"23-11",ff:false,players:[
 {n:"AJ Dybantsa",gp:34,mpg:34.6,ppg:25.3,s:null},
 {n:"Robert Wright III",gp:34,mpg:34.8,ppg:18.2,s:null},
-{n:"Richie Saunders",gp:25,mpg:31.4,ppg:18.0,s:null}]},
+{n:"Richie Saunders",gp:25,mpg:31.4,ppg:18.0,s:"OUT",r:"Season-ending knee injury"}]},
 {seed:7,name:"Miami (FL)",rec:"25-8",ff:false,players:[
 {n:"Malik Reneau",gp:33,mpg:28.5,ppg:18.8,s:null},
 {n:"Tre Donaldson",gp:33,mpg:33.9,ppg:16.5,s:null},
@@ -370,7 +376,7 @@ Midwest:[
 {n:"Amari Allen",gp:29,mpg:28.4,ppg:11.7,s:null},
 {n:"Aiden Sherrell",gp:31,mpg:23.6,ppg:11.1,s:null}]},
 {seed:5,name:"Texas Tech",rec:"22-10",ff:false,players:[
-{n:"JT Toppin",gp:25,mpg:34.8,ppg:21.8,s:null},
+{n:"JT Toppin",gp:25,mpg:34.8,ppg:21.8,s:"OUT",r:"Season-ending knee injury"},
 {n:"Christian Anderson",gp:31,mpg:38.4,ppg:18.9,s:null},
 {n:"Donovan Atwell",gp:32,mpg:34.7,ppg:13.5,s:null},
 {n:"LeJuan Watts",gp:31,mpg:27.5,ppg:11.5,s:null}]},
@@ -416,12 +422,12 @@ Midwest:[
 ]};
 
 let lastSent=null,rid=0;
-function sc(s){return s===1?'s1':s===2?'s2':s===3?'s3':s===4?'s4':'so'}
 function buildRegion(r){
   const g=document.getElementById('g-'+r);
+  const rc='r-'+r.toLowerCase();
   B[r].forEach(t=>{
     const c=document.createElement('div');c.className='team-card';
-    const h=`<div class="team-header"><span class="seed-badge ${sc(t.seed)}">${t.seed}</span><span class="team-name">${t.name}</span><span class="team-record">${t.rec}</span>${t.ff?'<span class="ff-tag">FIRST FOUR</span>':''}</div>`;
+    const h=`<div class="team-header"><span class="seed-badge ${rc}">${t.seed}</span><span class="team-name">${t.name}</span><span class="team-record">${t.rec}</span>${t.ff?'<span class="ff-tag">FIRST FOUR</span>':''}</div>`;
     let b='';
     if(t.tbd){b='<div class="tbd-row">First Four winner TBD &mdash; update after Mar 17&ndash;18</div>';}
     else{t.players.forEach(p=>{
