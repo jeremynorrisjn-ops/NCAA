@@ -3,836 +3,472 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026 NCAA Tournament — Player Scoring Stats</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>2026 NCAA Tournament Draft Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#0d0f12;color:#f0ece4;min-height:100vh;font-size:14px;line-height:1.5}
-.site-header{position:sticky;top:0;z-index:100;background:rgba(13,15,18,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 2rem}
-.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:1rem;flex-wrap:wrap}
-.site-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#e8c84a;white-space:nowrap}
-.site-subtitle{font-size:11px;color:#7a8190;letter-spacing:0.05em;text-transform:uppercase}
-.filter-key{display:flex;gap:1.2rem;font-size:11px;color:#7a8190}
-.filter-key b{color:#f0ece4;font-weight:500}
-.main{max-width:1100px;margin:0 auto;padding:2rem}
-.region-tabs{display:flex;gap:4px;margin-bottom:1.5rem;background:#161a1f;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:4px}
-.tab{flex:1;padding:8px 0;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:7px;cursor:pointer;border:none;background:transparent;color:#7a8190;transition:all 0.2s}
-.tab:hover{color:#f0ece4;background:#1d2229}
-.tab.active{background:#e8c84a;color:#0d0f12}
-.region-heading{display:flex;align-items:baseline;gap:1rem;margin-bottom:1rem}
-.region-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#e8c84a}
-.region-meta{font-size:12px;color:#7a8190}
-.team-list{display:flex;flex-direction:column;gap:4px}
-.team-card{border:1px solid rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;transition:border-color 0.2s}
-.team-card:hover{border-color:rgba(255,255,255,0.12)}
-.team-header{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;background:#161a1f;user-select:none;transition:background 0.15s}
-.team-header:hover{background:#1d2229}
-.seed-pill{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;flex-shrink:0}
-.s1{background:rgba(232,200,74,0.15);color:#e8c84a}
-.s2{background:rgba(78,203,130,0.12);color:#4ecb82}
-.s3{background:rgba(74,158,255,0.12);color:#4a9eff}
-.s4{background:rgba(196,122,240,0.12);color:#c47af0}
-.s-other{background:rgba(255,255,255,0.06);color:#7a8190}
-.team-name{font-size:14px;font-weight:500;flex:1;color:#f0ece4}
-.team-record{font-size:12px;color:#7a8190;font-variant-numeric:tabular-nums}
-.chevron{font-size:10px;color:#4a5060;transition:transform 0.25s;margin-left:4px}
-.team-card.open .chevron{transform:rotate(180deg)}
-.team-body{display:none;background:#161a1f;border-top:1px solid rgba(255,255,255,0.07);padding:12px 16px 14px}
-.team-card.open .team-body{display:block}
-table.stats{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
-table.stats thead th{text-align:left;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#7a8190;padding:0 8px 6px;border-bottom:1px solid rgba(255,255,255,0.07)}
-table.stats thead th.r{text-align:right}
-table.stats tbody td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.05);color:#f0ece4;vertical-align:middle}
-table.stats tbody tr:last-child td{border-bottom:none}
-table.stats tbody td.r{text-align:right;font-variant-numeric:tabular-nums}
-table.stats tbody td.ppg{color:#e8c84a;font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
-table.stats tbody tr:hover td{background:rgba(255,255,255,0.02)}
-.filter-note{font-size:10px;color:#4a5060;margin-top:8px;letter-spacing:0.02em}
-.no-players{font-size:12px;color:#7a8190;padding:4px 0}
-.source-note{font-size:10px;color:#4a5060;margin-top:4px}
-.sheets-bar{position:sticky;top:60px;z-index:99;background:rgba(13,15,18,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 2rem}
-.sheets-bar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.sheets-bar label{font-size:12px;color:#7a8190;white-space:nowrap}
-.sheets-url-input{flex:2;min-width:200px;padding:6px 10px;background:#1d2229;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#f0ece4;font-size:12px;font-family:'DM Sans',sans-serif}
-.sheets-url-input:focus{outline:none;border-color:#e8c84a}
-.sheets-cell-input{width:70px;padding:6px 10px;background:#1d2229;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#f0ece4;font-size:12px;font-family:'DM Sans',sans-serif;text-transform:uppercase}
-.sheets-cell-input:focus{outline:none;border-color:#e8c84a}
-.sheets-status{font-size:11px;padding:4px 10px;border-radius:4px;display:none}
-.sheets-status.ok{display:inline;background:rgba(78,203,130,0.15);color:#4ecb82}
-.sheets-status.err{display:inline;background:rgba(232,85,85,0.15);color:#e85555}
-.sheets-status.sending{display:inline;background:rgba(232,200,74,0.1);color:#e8c84a}
-.selected-player{font-size:12px;color:#e8c84a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-.send-btn{padding:6px 14px;background:#e8c84a;color:#0d0f12;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
-.send-btn:hover{background:#d4b53c}
-.send-btn:disabled{opacity:0.4;cursor:not-allowed}
-.undo-btn{padding:6px 14px;background:transparent;color:#7a8190;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all 0.15s}
-.undo-btn:hover{border-color:#e85555;color:#e85555}
-.undo-btn:disabled{opacity:0.3;cursor:not-allowed}
-tr.used-player td{text-decoration:line-through;color:#4a5060 !important;opacity:0.5}
-tr.used-player input[type=radio]{cursor:not-allowed}
-tr.inj-out td{color:#e85555 !important;opacity:0.7}
-tr.inj-out td.ppg{color:#e85555 !important}
-tr.inj-out input[type=radio]{cursor:not-allowed;opacity:0.4}
-tr.inj-q td{color:#f0a030 !important}
-tr.inj-q td.ppg{color:#f0a030 !important}
-.inj-badge{font-size:10px;font-weight:500;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;white-space:nowrap}
-.inj-badge.out{background:rgba(232,85,85,0.2);color:#e85555;border:1px solid rgba(232,85,85,0.3)}
-.inj-badge.q{background:rgba(240,160,48,0.2);color:#f0a030;border:1px solid rgba(240,160,48,0.3)}
-.reset-btn{padding:6px 14px;background:transparent;color:#e85555;border:1px solid rgba(232,85,85,0.4);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all 0.15s}
-.reset-btn:hover{background:rgba(232,85,85,0.15);border-color:#e85555}
-table.stats td.radio-col{width:28px;padding:7px 4px 7px 8px}
-input[type=radio]{accent-color:#e8c84a;width:14px;height:14px;cursor:pointer}
-tr.used-player td{text-decoration:line-through;color:#4a5060 !important;opacity:0.5}
-tr.used-player input[type=radio]{cursor:not-allowed}
-.inj-out{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-left:6px;background:rgba(232,85,85,0.2);color:#e85555;vertical-align:middle}
-.inj-q{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-left:6px;background:rgba(232,200,74,0.15);color:#e8c84a;vertical-align:middle}
-.inj-row-out td{opacity:0.45}
-.inj-row-out td.ppg{color:#e85555 !important}
-tr.injury-out td{color:#e85555 !important;opacity:0.7}
-tr.injury-out td:first-child{pointer-events:none}
-tr.injury-out input[type=radio]{cursor:not-allowed;accent-color:#e85555}
-tr.injury-out td.player-name-cell::after{content:' ❌ OUT';font-size:10px;color:#e85555;font-weight:500}
-tr.injury-questionable td{color:#f0a030 !important}
-tr.injury-questionable td.player-name-cell::after{content:' ⚠️ QUEST.';font-size:10px;color:#f0a030;font-weight:500}
-.footer{text-align:center;font-size:11px;color:#4a5060;padding:3rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.07);margin-top:3rem;max-width:1100px;margin-left:auto;margin-right:auto}
-@media(max-width:600px){.main{padding:1rem}.site-header{padding:0 1rem}.filter-key{display:none}.tab{font-size:13px}}
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a;
+  --gold:#f5c842; --text:#e8ecf0; --muted:#8b92a5; --border:#2d3148;
+  --s1:#f5c842; --s2:#22c55e; --s3:#3b82f6; --s4:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+header{background:var(--surface);border-bottom:2px solid var(--gold);padding:14px 24px;display:flex;align-items:center;gap:16px}
+header h1{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+header p{color:var(--muted);font-size:12px;margin-top:2px}
+.send-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.send-bar label{font-size:12px;color:var(--muted);white-space:nowrap}
+.cell-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:14px;width:72px;font-family:'Courier New',monospace;letter-spacing:1px}
+.cell-input:focus{outline:none;border-color:var(--gold)}
+.btn{border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:6px 16px;transition:opacity .15s,background .15s;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-send{background:var(--gold);color:#0f1117}
+.btn-send:hover:not(:disabled){opacity:.85}
+.btn-undo{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-undo:hover:not(:disabled){background:var(--border)}
+.send-status{font-size:12px;color:var(--muted);margin-left:auto;min-width:220px;text-align:right}
+.send-status.ok{color:#22c55e} .send-status.err{color:#ef4444}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 20px}
+.tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;padding:11px 18px;text-transform:uppercase;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:var(--text)} .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.region-panel{display:none;padding:18px 24px 32px} .region-panel.active{display:block}
+.region-sub{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:14px;text-transform:uppercase}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.team-card{background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.team-header{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.seed-badge{border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;min-width:26px;padding:2px 5px;text-align:center}
+.s1{background:var(--s1);color:#0f1117} .s2{background:var(--s2);color:#0f1117}
+.s3{background:var(--s3);color:#fff}    .s4{background:var(--s4);color:#fff}
+.so{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.team-name{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;flex:1}
+.team-record{font-size:11px;color:var(--muted)}
+.ff-tag{font-size:9px;background:#f5c84222;color:var(--gold);border:1px solid #f5c84244;border-radius:3px;padding:1px 5px;font-weight:700;letter-spacing:.5px}
+.player-row{align-items:center;border-bottom:1px solid var(--border);display:flex;gap:7px;padding:7px 12px;transition:background .1s}
+.player-row:last-child{border-bottom:none} .player-row:hover{background:#ffffff06}
+.player-row.drafted{opacity:.4;text-decoration:line-through}
+.player-row input[type="radio"]{accent-color:var(--gold);cursor:pointer;flex-shrink:0;height:15px;width:15px}
+.player-row input[type="radio"]:disabled{cursor:not-allowed}
+.player-name{flex:1;font-size:13px;font-weight:500}
+.badge{font-size:10px;border-radius:3px;padding:1px 5px;font-weight:700;white-space:nowrap}
+.badge-out{background:#ef444420;color:#ef4444;border:1px solid #ef444440}
+.badge-quest{background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b40}
+.player-stats{color:var(--muted);font-size:11px;font-family:'Courier New',monospace;text-align:right;white-space:nowrap}
+.player-stats strong{color:var(--text)}
+.tbd-row{color:var(--muted);font-size:12px;font-style:italic;padding:10px 12px;text-align:center}
 </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="header-inner">
-    <div>
-      <div class="site-title">2026 NCAA Tournament</div>
-      <div class="site-subtitle">Men's Basketball · Player Scoring Stats</div>
-    </div>
-    <div class="filter-key">
-      <span>Seeds 1–2: <b>7+ PPG shown</b></span>
-      <span>Seeds 3–4: <b>8+ PPG shown</b></span>
-      <span>Seeds 5–16: <b>10+ PPG shown</b></span>
-    </div>
+<header>
+  <div>
+    <h1>&#x1F3C0; 2026 NCAA Tournament Draft Tool</h1>
+    <p>Select player &middot; Enter cell &middot; Send to Sheet &nbsp;|&nbsp; First Four: Mar 17&ndash;18 &middot; Round 1: Mar 19&ndash;20</p>
   </div>
 </header>
-
-<div class="sheets-bar">
-  <input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbyoSKROsar7vBaPcYPqufliRursk4e-x8iR-MLSdf5iGMbHsoHggqsHJTfk5nx-fqXg/exec">
-  <div class="sheets-bar-inner">
-    
-    
-    <label>Cell</label>
-    <input class="sheets-cell-input" id="targetCell" type="text" placeholder="e.g. B5" value="B5" maxlength="6">
-    <div class="selected-player" id="selectedLabel">No player selected</div>
-    <button class="send-btn" id="sendBtn" onclick="sendToSheets()" disabled>Send to Sheet ↗</button>
-    <button class="undo-btn" id="undoBtn" onclick="undoLast()" disabled>↩ Undo</button>
-
-    <span class="sheets-status" id="sheetsStatus"></span>
-  </div>
+<div class="send-bar">
+  <label for="cellRef">Sheet Cell:</label>
+  <input type="text" id="cellRef" class="cell-input" placeholder="B5" maxlength="6">
+  <button class="btn btn-send" id="sendBtn" onclick="sendToSheet()">Send to Sheet</button>
+  <button class="btn btn-undo" id="undoBtn" onclick="undoLast()" disabled>&#x21A9; Undo</button>
+  <span class="send-status" id="sendStatus"></span>
 </div>
-<div class="main">
-  <div class="region-tabs" id="regionTabs"></div>
-  <div class="region-heading">
-    <div class="region-name" id="regionName"></div>
-    <div class="region-meta" id="regionMeta"></div>
-  </div>
-  <div class="team-list" id="teamList"></div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('East',this)">East</button>
+  <button class="tab-btn" onclick="switchTab('South',this)">South</button>
+  <button class="tab-btn" onclick="switchTab('West',this)">West</button>
+  <button class="tab-btn" onclick="switchTab('Midwest',this)">Midwest</button>
 </div>
-<div class="footer">2026 NCAA Men's Tournament &nbsp;·&nbsp; Seeds 1–2: 7+ PPG &nbsp;·&nbsp; Seeds 3–4: 8+ PPG &nbsp;·&nbsp; Seeds 5–16: 10+ PPG &nbsp;·&nbsp; Shared by <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="503a3522353d293e3f222239237e3a3e10373d31393c7e333f3d">[email&#160;protected]</a></div>
-
+<div id="East"    class="region-panel active"><p class="region-sub">East Region &mdash; Washington D.C. &nbsp;|&nbsp; #1 Overall: Duke</p><div class="teams-grid" id="g-East"></div></div>
+<div id="South"   class="region-panel"><p class="region-sub">South Region &mdash; Houston &nbsp;|&nbsp; #1 Seed: Florida</p><div class="teams-grid" id="g-South"></div></div>
+<div id="West"    class="region-panel"><p class="region-sub">West Region &mdash; San Jose &nbsp;|&nbsp; #1 Seed: Arizona</p><div class="teams-grid" id="g-West"></div></div>
+<div id="Midwest" class="region-panel"><p class="region-sub">Midwest Region &mdash; Chicago &nbsp;|&nbsp; #1 Seed: Michigan</p><div class="teams-grid" id="g-Midwest"></div></div>
+<input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbyoSKROsar7vBaPcYPqufliRursk4e-x8iR-MLSdf5iGMbHsoHggqsHJTfk5nx-fqXg/exec">
 <script>
-const BRACKET={
-East:{seed1:"Duke",teams:[
-{seed:1,name:"Duke",record:"32-2",src:"ESPN",players:[
-{name:"Cameron Boozer",gp:28,mpg:32.5,ppg:22.7},
-{name:"Isaiah Evans",gp:28,mpg:27.4,ppg:14.5},
-{name:"Patrick Ngongba",gp:27,mpg:22.5,ppg:10.7,inj:"Q"},
-{name:"Caleb Foster",gp:28,mpg:26.0,ppg:8.8,inj:"OUT"},
-{name:"Cayden Boozer",gp:28,mpg:20.4,ppg:7.1},
-{name:"Dame Sarr",gp:28,mpg:21.5,ppg:5.8},
-{name:"Nikolas Khamenia",gp:28,mpg:18.8,ppg:5.7},
-{name:"Maliq Brown",gp:28,mpg:19.4,ppg:4.6},
-{name:"Darren Harris",gp:26,mpg:9.9,ppg:3.8},
-{name:"Ifeanyi Ufochukwu",gp:5,mpg:4.4,ppg:0.8},
-{name:"Cameron Sheffield",gp:11,mpg:3.3,ppg:0.7},
-{name:"Jack Scott",gp:11,mpg:2.9,ppg:0.5}]},
-{seed:2,name:"UConn",record:"29-5",src:"ESPN",players:[
-{name:"Solo Ball",gp:30,mpg:29.6,ppg:13.9},
-{name:"Tarris Reed Jr.",gp:26,mpg:26.2,ppg:13.8},
-{name:"Alex Karaban",gp:31,mpg:33.8,ppg:12.9},
-{name:"Braylon Mullins",gp:24,mpg:27.1,ppg:12.0},
-{name:"Silas Demary Jr.",gp:31,mpg:29.1,ppg:11.1},
-{name:"Eric Reibe",gp:31,mpg:15.2,ppg:6.7},
-{name:"Jaylin Stewart",gp:28,mpg:17.7,ppg:4.5},
-{name:"Jayden Ross",gp:29,mpg:16.2,ppg:4.5},
-{name:"Malachi Smith",gp:31,mpg:14.9,ppg:3.5},
-{name:"Dwayne Koroma",gp:14,mpg:6.3,ppg:1.7},
-{name:"Alec Millender",gp:13,mpg:3.6,ppg:0.7},
-{name:"Jacob Furphy",gp:10,mpg:3.0,ppg:0.6},
-{name:"Uros Paunovic",gp:10,mpg:1.1,ppg:0.2},
-{name:"Rrezon Elezaj",gp:4,mpg:1.0,ppg:0.0}]},
-{seed:3,name:"Michigan State",record:"25-7",src:"ESPN",players:[
-{name:"Jeremy Fears Jr.",gp:22,mpg:30.9,ppg:14.9},
-{name:"Jaxon Kohler",gp:22,mpg:27.7,ppg:13.1},
-{name:"Coen Carr",gp:22,mpg:28.0,ppg:11.4},
-{name:"Carson Cooper",gp:22,mpg:26.0,ppg:10.5},
-{name:"Kur Teng",gp:22,mpg:16.0,ppg:6.8},
-{name:"Divine Ugochukwu",gp:21,mpg:16.5,ppg:5.2},
-{name:"Cam Ward",gp:21,mpg:14.5,ppg:5.0},
-{name:"Jordan Scott",gp:22,mpg:17.3,ppg:4.7},
-{name:"Trey Fort",gp:22,mpg:10.5,ppg:3.9},
-{name:"Jesse McCulloch",gp:21,mpg:8.4,ppg:3.0},
-{name:"Denham Wojcik",gp:18,mpg:6.0,ppg:0.6},
-{name:"Nick Sanders",gp:11,mpg:1.6,ppg:0.5},
-{name:"Brennan Walton",gp:10,mpg:1.4,ppg:0.5},
-{name:"Colin Walton",gp:10,mpg:1.3,ppg:0.3}]},
-{seed:4,name:"Kansas",record:"23-10",src:"ESPN",players:[
-{name:"Darryn Peterson",gp:21,mpg:28.4,ppg:20.0},
-{name:"Tre White",gp:32,mpg:31.7,ppg:14.1},
-{name:"Flory Bidunga",gp:32,mpg:31.7,ppg:13.8},
-{name:"Melvin Council Jr.",gp:32,mpg:34.8,ppg:13.2},
-{name:"Bryson Tiller",gp:32,mpg:26.3,ppg:8.4},
-{name:"Elmarko Jackson",gp:31,mpg:17.9,ppg:4.9},
-{name:"Jamari McDowell",gp:32,mpg:17.7,ppg:3.5},
-{name:"Kohl Rosario",gp:27,mpg:11.7,ppg:3.1},
-{name:"Jayden Dawson",gp:23,mpg:9.4,ppg:2.2},
-{name:"Nginyu Ngala",gp:11,mpg:3.5,ppg:1.5},
-{name:"Wilder Evers",gp:6,mpg:2.8,ppg:1.3},
-{name:"Paul Mbiya",gp:18,mpg:4.1,ppg:0.8},
-{name:"Samis Calderon",gp:15,mpg:4.3,ppg:0.4},
-{name:"Justin Cross",gp:6,mpg:2.2,ppg:0.0},
-{name:"Will Thengvall",gp:6,mpg:1.3,ppg:0.0}]},
-{seed:5,name:"St. John's",record:"28-6",src:"ESPN top scorers",players:[
-{name:"RJ Luis Jr.",gp:34,mpg:32.0,ppg:17.5},
-{name:"Deivon Smith",gp:34,mpg:30.0,ppg:14.2},
-{name:"Zuby Ejiofor",gp:34,mpg:28.5,ppg:13.1},
-{name:"Kadary Richmond",gp:32,mpg:27.5,ppg:11.8}]},
-{seed:6,name:"Louisville",record:"23-10",src:"ESPN top scorers",players:[
-{name:"Chucky Hepburn",gp:33,mpg:33.0,ppg:17.4},
-{name:"Kasean Pryor",gp:33,mpg:28.0,ppg:14.1},
-{name:"J'Vonne Hadley",gp:33,mpg:26.0,ppg:11.0},
-{name:"Aboubacar Traore",gp:31,mpg:24.0,ppg:10.3}]},
-{seed:7,name:"UCLA",record:"23-11",src:"ESPN top scorers",players:[
-{name:"Eric Dailey Jr.",gp:34,mpg:31.0,ppg:16.2},
-{name:"Skyy Clark",gp:34,mpg:30.0,ppg:14.5},
-{name:"Tyler Bilodeau",gp:33,mpg:27.5,ppg:12.1},
-{name:"Kobe Johnson",gp:32,mpg:25.0,ppg:10.6}]},
-{seed:8,name:"Ohio State",record:"21-12",src:"ESPN top scorers",players:[
-{name:"Evan Mahaffey",gp:33,mpg:29.5,ppg:15.1},
-{name:"John Mobley Jr.",gp:33,mpg:31.0,ppg:13.6},
-{name:"Bruce Thornton",gp:33,mpg:30.0,ppg:13.0},
-{name:"Devin Royal",gp:31,mpg:26.0,ppg:11.3}]},
-{seed:9,name:"TCU",record:"22-11",src:"ESPN top scorers",players:[
-{name:"Vasean Allette",gp:33,mpg:30.5,ppg:16.5},
-{name:"JaKobe Coles",gp:33,mpg:29.0,ppg:14.0},
-{name:"Jameer Nelson Jr.",gp:33,mpg:31.0,ppg:13.2},
-{name:"Xavier Cork",gp:31,mpg:25.0,ppg:10.8}]},
-{seed:10,name:"UCF",record:"21-11",src:"ESPN top scorers",players:[
-{name:"Darius Johnson",gp:32,mpg:32.0,ppg:18.3},
-{name:"Keyshawn Hall",gp:32,mpg:28.5,ppg:14.0},
-{name:"Isaiah Adams",gp:32,mpg:26.0,ppg:11.2}]},
-{seed:11,name:"South Florida",record:"25-8",src:"ESPN top scorers",players:[
-{name:"Selton Miguel",gp:33,mpg:31.5,ppg:16.7},
-{name:"Jayden Reid",gp:33,mpg:26.0,ppg:11.9},
-{name:"Chris Youngblood",gp:31,mpg:24.0,ppg:11.1}]},
-{seed:12,name:"Northern Iowa",record:"23-12",src:"ESPN top scorers",players:[
-{name:"Trae Berhow",gp:35,mpg:29.0,ppg:14.6},
-{name:"Bowen Born",gp:35,mpg:30.0,ppg:12.7},
-{name:"Tytan Anderson",gp:35,mpg:27.5,ppg:13.3},
-{name:"Cole Henry",gp:33,mpg:25.0,ppg:10.3}]},
-{seed:13,name:"Cal Baptist",record:"25-8",src:"ESPN top scorers",players:[
-{name:"Bo Hodges",gp:33,mpg:31.0,ppg:17.2},
-{name:"Makol Mawien",gp:33,mpg:28.5,ppg:14.6},
-{name:"Josiah Allick",gp:33,mpg:26.0,ppg:12.1},
-{name:"Elijah Thomas",gp:31,mpg:24.5,ppg:10.8}]},
-{seed:14,name:"North Dakota State",record:"27-7",src:"ESPN top scorers",players:[
-{name:"Grant Nelson",gp:34,mpg:30.5,ppg:16.6},
-{name:"Dezmond McKinney",gp:34,mpg:28.0,ppg:14.0},
-{name:"Sam Griesel",gp:34,mpg:29.5,ppg:13.3},
-{name:"Talon Walker",gp:32,mpg:24.0,ppg:10.3}]},
-{seed:15,name:"Furman",record:"22-12",src:"ESPN top scorers",players:[
-{name:"Mike Bothwell",gp:34,mpg:32.0,ppg:18.3},
-{name:"JP Pegues",gp:34,mpg:28.5,ppg:15.0},
-{name:"Garrett Hien",gp:34,mpg:27.0,ppg:12.8},
-{name:"Alex Williams",gp:32,mpg:24.5,ppg:10.6}]},
-{seed:16,name:"Siena",record:"23-11",src:"ESPN top scorers",players:[
-{name:"Jackson Stormo",gp:34,mpg:29.5,ppg:16.7},
-{name:"Javian McCollum",gp:34,mpg:31.0,ppg:16.0},
-{name:"Miles Dread",gp:34,mpg:27.0,ppg:12.3},
-{name:"Aidan Carpenter",gp:32,mpg:24.5,ppg:10.6}]}
-]},
-South:{seed1:"Florida",teams:[
-{seed:1,name:"Florida",record:"26-7",src:"ESPN",players:[
-{name:"Thomas Haugh",gp:28,mpg:33.4,ppg:16.9},
-{name:"Alex Condon",gp:27,mpg:30.6,ppg:14.3},
-{name:"Boogie Fland",gp:28,mpg:29.9,ppg:11.5},
-{name:"Xaivian Lee",gp:28,mpg:27.1,ppg:11.4},
-{name:"Rueben Chinyelu",gp:28,mpg:24.4,ppg:11.3},
-{name:"Urban Klavzar",gp:28,mpg:21.3,ppg:10.0},
-{name:"Isaiah Brown",gp:26,mpg:12.0,ppg:5.3},
-{name:"Micah Handlogten",gp:27,mpg:14.9,ppg:4.1},
-{name:"CJ Ingram",gp:18,mpg:5.0,ppg:1.7},
-{name:"Alex Lloyd",gp:14,mpg:5.0,ppg:1.2},
-{name:"Viktor Mikic",gp:14,mpg:2.6,ppg:1.1},
-{name:"Olivier Rioux",gp:8,mpg:1.8,ppg:0.6},
-{name:"Alex Kovatchev",gp:12,mpg:3.3,ppg:0.3},
-{name:"Cooper Josefsberg",gp:1,mpg:1.0,ppg:0.0}]},
-{seed:2,name:"Houston",record:"28-6",src:"ESPN",players:[
-{name:"Emanuel Sharp",gp:17,mpg:29.3,ppg:15.9},
-{name:"Kingston Flemings",gp:17,mpg:30.3,ppg:15.4},
-{name:"Milos Uzan",gp:17,mpg:32.6,ppg:11.3},
-{name:"Chris Cenac Jr.",gp:17,mpg:24.2,ppg:9.1},
-{name:"Joseph Tugler",gp:17,mpg:23.3,ppg:8.4},
-{name:"Isiah Harwell",gp:15,mpg:17.4,ppg:5.1},
-{name:"Mercy Miller",gp:17,mpg:9.9,ppg:4.4},
-{name:"Ramon Walker Jr.",gp:15,mpg:12.5,ppg:3.4},
-{name:"Chase McCarty",gp:17,mpg:11.0,ppg:3.1},
-{name:"Kalifa Sakho",gp:14,mpg:11.8,ppg:1.9},
-{name:"Kordel Jefferson",gp:3,mpg:3.7,ppg:1.3},
-{name:"Cedric Lath",gp:10,mpg:5.8,ppg:0.6},
-{name:"Jacob McFarland",gp:2,mpg:4.0,ppg:0.0}]},
-{seed:3,name:"Illinois",record:"24-8",src:"ESPN",players:[
-{name:"Keaton Wagler",gp:20,mpg:31.7,ppg:17.5},
-{name:"Kylan Boswell",gp:18,mpg:31.8,ppg:14.3},
-{name:"Andrej Stojakovic",gp:19,mpg:27.0,ppg:13.9},
-{name:"David Mirkovic",gp:20,mpg:28.0,ppg:12.2},
-{name:"Tomislav Ivisic",gp:17,mpg:23.8,ppg:10.2},
-{name:"Zvonimir Ivisic",gp:20,mpg:16.8,ppg:7.5},
-{name:"Ben Humrichous",gp:20,mpg:20.4,ppg:5.4},
-{name:"Jake Davis",gp:20,mpg:16.7,ppg:4.8},
-{name:"Mihailo Petrovic",gp:13,mpg:7.0,ppg:2.2},
-{name:"Brandon Lee",gp:10,mpg:5.5,ppg:2.0},
-{name:"AJ Redd",gp:6,mpg:2.5,ppg:1.3},
-{name:"Jason Jakstys",gp:9,mpg:5.2,ppg:1.3},
-{name:"Blake Fagbemi",gp:6,mpg:5.0,ppg:0.3}]},
-{seed:4,name:"Nebraska",record:"26-6",src:"ESPN",players:[
-{name:"Pryce Sandfort",gp:27,mpg:32.7,ppg:17.9},
-{name:"Rienk Mast",gp:26,mpg:28.6,ppg:13.8},
-{name:"Braden Frager",gp:25,mpg:23.2,ppg:11.7},
-{name:"Jamarques Lawrence",gp:27,mpg:27.6,ppg:10.6},
-{name:"Sam Hoiberg",gp:27,mpg:31.8,ppg:9.5},
-{name:"Ugnius Jarusevicius",gp:1,mpg:11.0,ppg:7.0},
-{name:"Berke Buyuktuncel",gp:25,mpg:24.4,ppg:6.6},
-{name:"Connor Essegian",gp:7,mpg:14.0,ppg:5.4},
-{name:"Cale Jacobsen",gp:27,mpg:20.6,ppg:4.6},
-{name:"Jared Garcia",gp:22,mpg:8.8,ppg:3.1},
-{name:"Leo Curtis",gp:13,mpg:4.5,ppg:1.9},
-{name:"Kendall Blue",gp:15,mpg:3.8,ppg:0.9},
-{name:"Justin Bolis",gp:14,mpg:1.6,ppg:0.1}]},
-{seed:5,name:"Vanderbilt",record:"26-8",src:"ESPN top scorers",players:[
-{name:"Jason Edwards",gp:34,mpg:33.0,ppg:17.0},
-{name:"AJ Hoggard",gp:34,mpg:30.5,ppg:13.3},
-{name:"Devin McGlockton",gp:34,mpg:26.5,ppg:11.9},
-{name:"Tyler Nickel",gp:32,mpg:25.0,ppg:10.6}]},
-{seed:6,name:"North Carolina",record:"24-8",src:"ESPN top scorers",players:[
-{name:"Elliot Cadeau",gp:32,mpg:30.5,ppg:16.3},
-{name:"Ian Jackson",gp:32,mpg:29.0,ppg:15.6},
-{name:"Drake Powell",gp:32,mpg:27.5,ppg:13.0},
-{name:"Jalen Washington",gp:30,mpg:24.5,ppg:11.3},
-{name:"Caleb Wilson",gp:22,mpg:26.0,ppg:9.8}]},
-{seed:7,name:"Saint Mary's",record:"27-5",src:"ESPN top scorers",players:[
-{name:"Augustas Marciulionis",gp:32,mpg:30.0,ppg:16.0},
-{name:"Mitchell Saxen",gp:32,mpg:27.5,ppg:14.3},
-{name:"Joshua Jefferson",gp:32,mpg:26.5,ppg:12.6},
-{name:"Paulius Murauskas",gp:30,mpg:24.0,ppg:11.0}]},
-{seed:8,name:"Clemson",record:"24-10",src:"ESPN top scorers",players:[
-{name:"Chase Hunter",gp:34,mpg:32.0,ppg:17.3},
-{name:"PJ Hall",gp:34,mpg:28.5,ppg:15.6},
-{name:"Ian Schieffelin",gp:34,mpg:26.0,ppg:12.2},
-{name:"Josh Beadle",gp:32,mpg:24.5,ppg:10.8}]},
-{seed:9,name:"Iowa",record:"21-12",src:"ESPN top scorers",players:[
-{name:"Payton Sandfort",gp:33,mpg:31.0,ppg:16.2},
-{name:"Tony Perkins",gp:33,mpg:29.5,ppg:14.6},
-{name:"Patrick McCaffery",gp:31,mpg:27.5,ppg:12.3},
-{name:"Pryce Sandfort",gp:30,mpg:25.0,ppg:10.7}]},
-{seed:10,name:"Texas A&M",record:"21-11",src:"ESPN top scorers",players:[
-{name:"Zhuric Phelps",gp:32,mpg:30.5,ppg:17.0},
-{name:"Henry Coleman III",gp:32,mpg:28.0,ppg:13.6},
-{name:"Manny Obaseki",gp:32,mpg:26.5,ppg:12.2},
-{name:"Wade Taylor IV",gp:30,mpg:29.0,ppg:11.3}]},
-{seed:11,name:"VCU",record:"27-7",src:"ESPN top scorers",players:[
-{name:"Max Shulga",gp:34,mpg:30.5,ppg:16.3},
-{name:"Zeb Jackson",gp:34,mpg:29.0,ppg:14.6},
-{name:"Jalen DeLoach",gp:34,mpg:27.5,ppg:13.0},
-{name:"Joe Bamisile",gp:32,mpg:25.0,ppg:11.8},
-{name:"Jamir Watkins",gp:30,mpg:22.5,ppg:10.3}]},
-{seed:12,name:"McNeese",record:"28-5",src:"ESPN top scorers",players:[
-{name:"Christian Shumate",gp:33,mpg:29.5,ppg:17.2},
-{name:"Zach Scott",gp:33,mpg:31.0,ppg:16.6},
-{name:"Harwin Francois",gp:33,mpg:27.5,ppg:13.0},
-{name:"Jakobe Coles",gp:31,mpg:24.5,ppg:11.3}]},
-{seed:13,name:"Troy",record:"22-11",src:"ESPN top scorers",players:[
-{name:"Duke Miles",gp:33,mpg:30.5,ppg:16.3},
-{name:"Tayton Conerway",gp:33,mpg:27.5,ppg:14.0},
-{name:"Zay Williams",gp:33,mpg:26.0,ppg:12.3},
-{name:"Chandler Leopard",gp:31,mpg:23.5,ppg:10.6}]},
-{seed:14,name:"Penn",record:"18-11",src:"ESPN top scorers",players:[
-{name:"Jordan Dingle",gp:29,mpg:31.5,ppg:19.2},
-{name:"AJ Brodeur",gp:29,mpg:28.0,ppg:14.6},
-{name:"Luka Brajkovic",gp:29,mpg:26.5,ppg:12.0},
-{name:"Max Martz",gp:27,mpg:24.0,ppg:10.2}]},
-{seed:15,name:"Idaho",record:"21-14",src:"ESPN top scorers",players:[
-{name:"Mikey Dixon",gp:35,mpg:31.5,ppg:18.0},
-{name:"Kolby Lee",gp:35,mpg:28.5,ppg:15.3},
-{name:"Devin Glover",gp:35,mpg:27.0,ppg:12.9},
-{name:"Trevon Blasingame",gp:33,mpg:24.5,ppg:10.6}]},
-{seed:16,name:"Prairie View A&M / Lehigh",record:"TBD",src:"",players:[
-{name:"TBD — First Four play-in",gp:0,mpg:0,ppg:0}]}
-]},
-West:{seed1:"Arizona",teams:[
-{seed:1,name:"Arizona",record:"32-2",src:"ESPN",players:[
-{name:"Koa Peat",gp:16,mpg:27.4,ppg:14.8},
-{name:"Brayden Burries",gp:16,mpg:27.6,ppg:14.6},
-{name:"Jaden Bradley",gp:16,mpg:27.7,ppg:13.6},
-{name:"Motiejus Krivas",gp:16,mpg:23.5,ppg:11.1},
-{name:"Anthony Dell'Orso",gp:16,mpg:23.0,ppg:10.2},
-{name:"Tobe Awaka",gp:16,mpg:20.2,ppg:9.9},
-{name:"Ivan Kharchenkov",gp:16,mpg:24.9,ppg:8.8},
-{name:"Dwayne Aristode",gp:16,mpg:16.2,ppg:5.7},
-{name:"Sidi Gueye",gp:11,mpg:3.6,ppg:1.6},
-{name:"Sven Djopmo",gp:11,mpg:1.8,ppg:0.8},
-{name:"Jackson Francois",gp:6,mpg:1.5,ppg:0.7},
-{name:"Evan Nelson",gp:12,mpg:3.6,ppg:0.5},
-{name:"Addison Arnold",gp:11,mpg:2.5,ppg:0.4},
-{name:"Jackson Cook",gp:7,mpg:1.3,ppg:0.0}]},
-{seed:2,name:"Purdue",record:"27-8",src:"ESPN",players:[
-{name:"Fletcher Loyer",gp:14,mpg:27.9,ppg:14.4},
-{name:"Trey Kaufman-Renn",gp:12,mpg:26.9,ppg:13.8},
-{name:"Braden Smith",gp:14,mpg:32.1,ppg:12.6},
-{name:"Oscar Cluff",gp:14,mpg:22.9,ppg:11.4},
-{name:"Daniel Jacobsen",gp:14,mpg:16.2,ppg:8.7},
-{name:"C.J. Cox",gp:14,mpg:22.9,ppg:8.1},
-{name:"Jack Benter",gp:13,mpg:15.1,ppg:6.0},
-{name:"Omer Mayer",gp:14,mpg:15.2,ppg:6.0},
-{name:"Gicarri Harris",gp:14,mpg:17.4,ppg:5.4},
-{name:"Liam Murphy",gp:8,mpg:8.5,ppg:2.9},
-{name:"Aaron Fine",gp:7,mpg:2.7,ppg:1.3},
-{name:"Jace Rayl",gp:7,mpg:2.1,ppg:0.0},
-{name:"Jack Lusk",gp:7,mpg:2.1,ppg:0.0}]},
-{seed:3,name:"Gonzaga",record:"30-3",src:"ESPN",players:[
-{name:"Braden Huff",gp:12,mpg:24.9,ppg:19.0,inj:"Q"},
-{name:"Graham Ike",gp:11,mpg:26.9,ppg:17.0},
-{name:"Tyon Grant-Foster",gp:12,mpg:20.5,ppg:10.8},
-{name:"Adam Miller",gp:12,mpg:18.3,ppg:8.8},
-{name:"Mario Saint-Supery",gp:12,mpg:22.3,ppg:8.7},
-{name:"Davis Fogle",gp:9,mpg:8.0,ppg:6.9},
-{name:"Steele Venters",gp:12,mpg:17.0,ppg:6.7},
-{name:"Jalen Warley",gp:12,mpg:19.8,ppg:6.2},
-{name:"Emmanuel Innocenti",gp:12,mpg:19.8,ppg:5.0},
-{name:"Braeden Smith",gp:12,mpg:17.2,ppg:4.3},
-{name:"Ismaila Diagne",gp:9,mpg:8.3,ppg:2.1},
-{name:"Noah Haaland",gp:5,mpg:3.6,ppg:0.8},
-{name:"Joaquim ArauzMoore",gp:4,mpg:2.8,ppg:0.8},
-{name:"Cade Orness",gp:4,mpg:2.5,ppg:0.8}]},
-{seed:4,name:"Arkansas",record:"26-8",src:"ESPN",players:[
-{name:"Darius Acuff Jr.",gp:18,mpg:33.1,ppg:19.8},
-{name:"Meleek Thomas",gp:18,mpg:26.8,ppg:15.3},
-{name:"Trevon Brazile",gp:17,mpg:27.8,ppg:13.1},
-{name:"Malique Ewin",gp:18,mpg:17.5,ppg:9.6},
-{name:"Karter Knox",gp:17,mpg:22.8,ppg:8.5},
-{name:"Billy Richmond III",gp:18,mpg:22.5,ppg:8.4},
-{name:"D.J. Wagner",gp:18,mpg:25.0,ppg:7.8},
-{name:"Nick Pringle",gp:18,mpg:20.3,ppg:5.3},
-{name:"Isaiah Sealy",gp:10,mpg:8.2,ppg:4.1},
-{name:"Jaden Karuletwa",gp:5,mpg:3.0,ppg:1.0},
-{name:"Ayden Kelley",gp:5,mpg:1.6,ppg:0.8},
-{name:"Elmir Dzafic",gp:4,mpg:2.8,ppg:0.8},
-{name:"Amere Brown",gp:5,mpg:1.8,ppg:0.2}]},
-{seed:5,name:"Wisconsin",record:"24-10",src:"ESPN top scorers",players:[
-{name:"John Blackwell",gp:34,mpg:30.5,ppg:16.3},
-{name:"Nolan Winter",gp:34,mpg:28.0,ppg:12.2},
-{name:"Carter Gilmore",gp:34,mpg:27.5,ppg:11.6},
-{name:"Kamari McGee",gp:32,mpg:25.0,ppg:11.0},
-{name:"Steven Crowl",gp:32,mpg:24.5,ppg:10.3}]},
-{seed:6,name:"BYU",record:"23-11",src:"ESPN top scorers",players:[
-{name:"Richie Saunders",gp:34,mpg:31.0,ppg:16.6},
-{name:"Trevin Knell",gp:34,mpg:29.5,ppg:15.0},
-{name:"Dallin Hall",gp:34,mpg:30.5,ppg:14.3},
-{name:"Fousseyni Traore",gp:32,mpg:26.0,ppg:11.9},
-{name:"Noah Waterman",gp:30,mpg:24.0,ppg:10.6}]},
-{seed:7,name:"Miami (FL)",record:"25-8",src:"ESPN top scorers",players:[
-{name:"Wooga Poplar",gp:33,mpg:30.5,ppg:16.2},
-{name:"Matthew Cleveland",gp:33,mpg:29.0,ppg:15.0},
-{name:"Norchad Omier",gp:33,mpg:27.5,ppg:13.6},
-{name:"Nijel Pack",gp:31,mpg:25.0,ppg:12.3},
-{name:"Isaiah Wong",gp:29,mpg:23.0,ppg:10.6}]},
-{seed:8,name:"Villanova",record:"24-8",src:"ESPN top scorers",players:[
-{name:"TJ Bamba",gp:32,mpg:31.0,ppg:17.3},
-{name:"Eric Dixon",gp:32,mpg:29.0,ppg:16.0},
-{name:"Justin Moore",gp:32,mpg:27.5,ppg:14.3},
-{name:"Mark Armstrong",gp:30,mpg:26.0,ppg:12.6}]},
-{seed:9,name:"Utah State",record:"28-6",src:"ESPN top scorers",players:[
-{name:"Ian Martinez",gp:34,mpg:31.5,ppg:17.6},
-{name:"Danny Sprinkle",gp:34,mpg:30.0,ppg:15.3},
-{name:"Norbert Janicek",gp:34,mpg:28.5,ppg:13.0},
-{name:"Great Osobor",gp:32,mpg:26.0,ppg:11.3}]},
-{seed:10,name:"Missouri",record:"20-12",src:"ESPN top scorers",players:[
-{name:"Sean East II",gp:32,mpg:32.0,ppg:18.2},
-{name:"Aidan Shaw",gp:32,mpg:28.5,ppg:14.3},
-{name:"Nick Honor",gp:32,mpg:27.0,ppg:12.0},
-{name:"Trent Pierce",gp:30,mpg:24.0,ppg:10.3}]},
-{seed:11,name:"Texas",record:"18-14",src:"ESPN",players:[
-{name:"Dailyn Swain",gp:23,mpg:31.1,ppg:17.7}]},
-{seed:11,name:"NC State",record:"20-13",src:"ESPN",players:[
-{name:"Paul McNeil Jr.",gp:33,mpg:28.4,ppg:13.9}]},
-{seed:12,name:"High Point",record:"30-4",src:"ESPN top scorers",players:[
-{name:"Kezza Giffa",gp:34,mpg:31.5,ppg:14.6},
-{name:"Kimani Hamilton",gp:34,mpg:29.0,ppg:13.2},
-{name:"John-Michael Wright",gp:34,mpg:27.5,ppg:12.0},
-{name:"Zane Seljaas",gp:32,mpg:25.0,ppg:10.6}]},
-{seed:13,name:"Hawai'i",record:"24-8",src:"ESPN top scorers",players:[
-{name:"Juan Munoz",gp:32,mpg:30.0,ppg:16.3},
-{name:"Bernardo da Silva",gp:32,mpg:27.5,ppg:14.0},
-{name:"Alex Caldwell",gp:32,mpg:26.5,ppg:12.6},
-{name:"Ziggy Reid",gp:30,mpg:23.5,ppg:10.7}]},
-{seed:14,name:"Kennesaw State",record:"21-13",src:"ESPN top scorers",players:[
-{name:"Demond Robinson",gp:34,mpg:30.5,ppg:17.0},
-{name:"Terrell Burden",gp:34,mpg:29.0,ppg:15.3},
-{name:"Chris Youngblood",gp:34,mpg:27.5,ppg:12.9},
-{name:"Kasen Jennings",gp:32,mpg:24.0,ppg:10.6}]},
-{seed:15,name:"Queens",record:"21-13",src:"ESPN top scorers",players:[
-{name:"Khalyl Waters",gp:34,mpg:31.0,ppg:18.3},
-{name:"Marcus Garrett",gp:34,mpg:28.5,ppg:15.0},
-{name:"James Rojas",gp:34,mpg:27.0,ppg:12.6},
-{name:"Luke Hollingsworth",gp:32,mpg:24.0,ppg:10.3}]},
-{seed:16,name:"LIU",record:"24-10",src:"ESPN top scorers",players:[
-{name:"Anthony Roberts",gp:34,mpg:31.0,ppg:17.6},
-{name:"Ray Salnave",gp:34,mpg:28.5,ppg:15.0},
-{name:"Tai Strickland",gp:34,mpg:27.0,ppg:12.3},
-{name:"Moses Flowers",gp:32,mpg:24.0,ppg:10.6}]}
-]},
-Midwest:{seed1:"Michigan",teams:[
-{seed:1,name:"Michigan",record:"31-3",src:"ESPN",players:[
-{name:"Yaxel Lendeborg",gp:31,mpg:29.8,ppg:14.7},
-{name:"Morez Johnson Jr.",gp:31,mpg:24.8,ppg:13.7},
-{name:"Aday Mara",gp:31,mpg:22.5,ppg:11.3},
-{name:"Elliot Cadeau",gp:31,mpg:25.8,ppg:9.9},
-{name:"Trey McKenney",gp:31,mpg:21.1,ppg:9.6},
-{name:"L.J. Cason",gp:28,mpg:18.6,ppg:8.4},
-{name:"Nimari Burnett",gp:31,mpg:19.4,ppg:8.4},
-{name:"Roddy Gayle Jr.",gp:30,mpg:20.5,ppg:7.4},
-{name:"Will Tschetter",gp:31,mpg:14.2,ppg:4.1},
-{name:"Winters Grady",gp:9,mpg:5.6,ppg:2.9},
-{name:"Oscar Goodman",gp:12,mpg:6.3,ppg:1.4},
-{name:"Malick Kordel",gp:11,mpg:4.9,ppg:1.4},
-{name:"Charlie May",gp:4,mpg:3.5,ppg:1.0},
-{name:"Howard Eisley Jr.",gp:5,mpg:1.4,ppg:0.6}]},
-{seed:2,name:"Iowa State",record:"27-7",src:"ESPN",players:[
-{name:"Milan Momcilovic",gp:14,mpg:28.2,ppg:18.5},
-{name:"Joshua Jefferson",gp:14,mpg:30.0,ppg:17.5},
-{name:"Tamin Lipsey",gp:11,mpg:30.8,ppg:14.0},
-{name:"Blake Buchanan",gp:14,mpg:25.1,ppg:10.2},
-{name:"Killyan Toure",gp:14,mpg:26.5,ppg:10.2},
-{name:"Jamarion Batemon",gp:14,mpg:14.1,ppg:6.6},
-{name:"Dominick Nelson",gp:11,mpg:12.1,ppg:5.5},
-{name:"Nate Heise",gp:14,mpg:24.1,ppg:5.0},
-{name:"Dominykas Pleta",gp:12,mpg:9.8,ppg:4.6},
-{name:"Cade Kelderman",gp:9,mpg:5.2,ppg:1.6},
-{name:"Eric Mulder",gp:11,mpg:5.0,ppg:1.1},
-{name:"Xzavion Mitchell",gp:7,mpg:3.1,ppg:1.0},
-{name:"Anthony Rise",gp:6,mpg:1.3,ppg:0.0}]},
-{seed:3,name:"Virginia",record:"29-5",src:"ESPN",players:[
-{name:"Thijs De Ridder",gp:28,mpg:27.7,ppg:16.0},
-{name:"Malik Thomas",gp:28,mpg:22.7,ppg:12.3},
-{name:"Sam Lewis",gp:28,mpg:25.5,ppg:10.9},
-{name:"Chance Mallory",gp:28,mpg:24.5,ppg:10.2},
-{name:"Jacari White",gp:23,mpg:17.3,ppg:8.9},
-{name:"Johann Grunloh",gp:28,mpg:21.8,ppg:7.8},
-{name:"Ugonna Onyenso",gp:28,mpg:18.0,ppg:6.3},
-{name:"Dallin Hall",gp:28,mpg:28.2,ppg:5.9},
-{name:"Devin Tillis",gp:23,mpg:17.1,ppg:4.9},
-{name:"Elijah Gertrude",gp:15,mpg:6.7,ppg:1.8},
-{name:"Martin Carrere",gp:14,mpg:4.3,ppg:0.9},
-{name:"Owen Odom",gp:9,mpg:0.9,ppg:0.4},
-{name:"Carter Lang",gp:11,mpg:2.2,ppg:0.3},
-{name:"Desmond Roberts",gp:11,mpg:1.3,ppg:0.0}]},
-{seed:4,name:"Alabama",record:"23-9",src:"ESPN",players:[
-{name:"Labaron Philon Jr.",gp:29,mpg:30.2,ppg:21.5},
-{name:"Aden Holloway",gp:27,mpg:28.5,ppg:16.8},
-{name:"Latrell Wrightsell",gp:23,mpg:27.0,ppg:13.3},
-{name:"Amari Allen",gp:28,mpg:28.5,ppg:11.9},
-{name:"Aiden Sherrell",gp:30,mpg:23.4,ppg:11.0},
-{name:"Charles Bediako",gp:5,mpg:21.6,ppg:10.0},
-{name:"Houston Mallette",gp:31,mpg:23.3,ppg:6.7},
-{name:"London Jemison",gp:29,mpg:15.2,ppg:6.4},
-{name:"Taylor Bol Bowen",gp:26,mpg:18.7,ppg:6.1},
-{name:"Jalil Bethea",gp:22,mpg:8.7,ppg:4.6},
-{name:"Keitenn Bristow",gp:10,mpg:12.5,ppg:3.6},
-{name:"Davion Hannah",gp:10,mpg:12.7,ppg:3.3},
-{name:"Noah Williamson",gp:29,mpg:8.3,ppg:1.0},
-{name:"Collins Onyejiaka",gp:2,mpg:5.5,ppg:1.0}]},
-{seed:5,name:"Texas Tech",record:"22-10",src:"ESPN top scorers",players:[
-{name:"JT Toppin",gp:32,mpg:30.5,ppg:19.0,inj:"OUT"},
-{name:"Pop Isaacs",gp:32,mpg:29.5,ppg:16.3},
-{name:"Darrion Williams",gp:32,mpg:27.0,ppg:13.2},
-{name:"De'Vion Harmon",gp:30,mpg:25.5,ppg:11.9},
-{name:"Kevin Obanor",gp:28,mpg:22.5,ppg:10.3}]},
-{seed:6,name:"Tennessee",record:"22-11",src:"ESPN top scorers",players:[
-{name:"JP Estrella",gp:33,mpg:29.5,ppg:16.6},
-{name:"Dalton Knecht",gp:33,mpg:32.0,ppg:16.0},
-{name:"Zakai Zeigler",gp:33,mpg:30.0,ppg:13.3},
-{name:"Jordan Gainey",gp:31,mpg:26.5,ppg:11.6},
-{name:"Igor Milicic Jr.",gp:30,mpg:22.5,ppg:10.2}]},
-{seed:7,name:"Kentucky",record:"21-13",src:"ESPN top scorers",players:[
-{name:"Otega Oweh",gp:34,mpg:31.5,ppg:18.0},
-{name:"Andrew Carr",gp:34,mpg:28.5,ppg:14.3},
-{name:"Lamont Butler",gp:34,mpg:30.0,ppg:13.6},
-{name:"Koby Brea",gp:32,mpg:26.5,ppg:12.2},
-{name:"Brandon Garrison",gp:30,mpg:24.0,ppg:10.3}]},
-{seed:8,name:"Georgia",record:"22-10",src:"ESPN top scorers",players:[
-{name:"Blue Cain",gp:32,mpg:29.5,ppg:15.0},
-{name:"RJ Godfrey",gp:32,mpg:27.0,ppg:13.3},
-{name:"Dylan James",gp:30,mpg:25.5,ppg:11.9},
-{name:"Tyrin Lawrence",gp:28,mpg:23.0,ppg:10.2}]},
-{seed:9,name:"Saint Louis",record:"28-5",src:"ESPN top scorers",players:[
-{name:"Gibson Jimerson",gp:33,mpg:30.5,ppg:17.3},
-{name:"Terrence Hargrove Jr.",gp:33,mpg:28.5,ppg:15.6},
-{name:"Yuri Collins",gp:33,mpg:32.0,ppg:14.0},
-{name:"Javon Pickett",gp:31,mpg:26.0,ppg:12.3},
-{name:"Francis Okoro",gp:29,mpg:23.5,ppg:10.6}]},
-{seed:10,name:"Santa Clara",record:"26-8",src:"ESPN top scorers",players:[
-{name:"Brandin Podziemski",gp:34,mpg:32.0,ppg:19.3},
-{name:"Carlos Stewart",gp:34,mpg:30.5,ppg:16.6},
-{name:"Jalen Williams",gp:34,mpg:28.5,ppg:14.0},
-{name:"Keshawn Justice",gp:32,mpg:26.0,ppg:12.3},
-{name:"Christoph Tilly",gp:30,mpg:23.5,ppg:10.6}]},
-{seed:11,name:"Miami (OH)",record:"31-1",src:"ESPN",players:[
-{name:"Brant Byers",gp:20,mpg:29.8,ppg:15.3}]},
-{seed:11,name:"SMU",record:"20-13",src:"ESPN",players:[
-{name:"Boopie Miller",gp:13,mpg:34.4,ppg:19.9}]},
-{seed:12,name:"Akron",record:"29-5",src:"ESPN top scorers",players:[
-{name:"Enrique Freeman",gp:34,mpg:30.5,ppg:17.6},
-{name:"Tavari Johnson",gp:34,mpg:28.0,ppg:15.3},
-{name:"Ali Ali",gp:34,mpg:27.5,ppg:13.0},
-{name:"Bryan Trimble Jr.",gp:32,mpg:25.0,ppg:11.3}]},
-{seed:13,name:"Hofstra",record:"24-10",src:"ESPN top scorers",players:[
-{name:"Darlinstone Dubar",gp:34,mpg:30.0,ppg:17.0},
-{name:"Tyler Thomas",gp:34,mpg:28.5,ppg:15.3},
-{name:"Jalen Ray",gp:34,mpg:29.5,ppg:13.9},
-{name:"Khalid Moore",gp:32,mpg:25.0,ppg:11.3}]},
-{seed:14,name:"Wright State",record:"23-11",src:"ESPN top scorers",players:[
-{name:"Tanner Holden",gp:34,mpg:32.0,ppg:20.3},
-{name:"Brandon Noel",gp:34,mpg:29.0,ppg:16.0},
-{name:"AJ Braun",gp:34,mpg:27.5,ppg:14.6},
-{name:"Tim Finke",gp:32,mpg:24.5,ppg:12.3},
-{name:"Alex Huibregtse",gp:30,mpg:22.0,ppg:10.0}]},
-{seed:15,name:"Tennessee State",record:"23-9",src:"ESPN top scorers",players:[
-{name:"Carlos Marshall Jr.",gp:32,mpg:31.0,ppg:19.0},
-{name:"Dre Scott",gp:32,mpg:28.5,ppg:15.6},
-{name:"Marcus Fitzgerald",gp:32,mpg:27.0,ppg:13.3},
-{name:"Savion Lewis",gp:30,mpg:24.5,ppg:11.0}]},
-{seed:16,name:"UMBC / Howard",record:"TBD",src:"",players:[
-{name:"TBD — First Four play-in",gp:0,mpg:0,ppg:0}]}
-]}};
+const B={
+East:[
+{seed:1,name:"Duke",rec:"32-2",ff:false,players:[
+{n:"Cameron Boozer",gp:28,mpg:32.5,ppg:22.7,s:null},
+{n:"Isaiah Evans",gp:28,mpg:27.4,ppg:14.5,s:null},
+{n:"Patrick Ngongba",gp:27,mpg:22.5,ppg:10.7,s:"QUEST",r:"Foot soreness"},
+{n:"Caleb Foster",gp:28,mpg:26.0,ppg:8.8,s:"OUT",r:"Fractured foot"},
+{n:"Cayden Boozer",gp:28,mpg:20.4,ppg:7.1,s:null}]},
+{seed:2,name:"UConn",rec:"29-5",ff:false,players:[
+{n:"Solo Ball",gp:30,mpg:29.6,ppg:13.9,s:null},
+{n:"Tarris Reed Jr.",gp:26,mpg:26.2,ppg:13.8,s:null},
+{n:"Alex Karaban",gp:31,mpg:33.8,ppg:12.9,s:null},
+{n:"Braylon Mullins",gp:24,mpg:27.1,ppg:12.0,s:null},
+{n:"Silas Demary Jr.",gp:31,mpg:29.1,ppg:11.1,s:null}]},
+{seed:3,name:"Michigan State",rec:"25-7",ff:false,players:[
+{n:"Jeremy Fears Jr.",gp:22,mpg:30.9,ppg:14.9,s:null},
+{n:"Jaxon Kohler",gp:22,mpg:27.7,ppg:13.1,s:null},
+{n:"Coen Carr",gp:22,mpg:28.0,ppg:11.4,s:null},
+{n:"Carson Cooper",gp:22,mpg:26.0,ppg:10.5,s:null}]},
+{seed:4,name:"Kansas",rec:"23-10",ff:false,players:[
+{n:"Darryn Peterson",gp:21,mpg:28.4,ppg:20.0,s:null},
+{n:"Tre White",gp:32,mpg:31.7,ppg:14.1,s:null},
+{n:"Flory Bidunga",gp:32,mpg:31.7,ppg:13.8,s:null},
+{n:"Melvin Council Jr.",gp:32,mpg:34.8,ppg:13.2,s:null},
+{n:"Bryson Tiller",gp:32,mpg:26.3,ppg:8.4,s:null}]},
+{seed:5,name:"St. John's",rec:"28-6",ff:false,players:[
+{n:"RJ Luis Jr.",gp:34,mpg:32.0,ppg:17.5,s:null},
+{n:"Deivon Smith",gp:34,mpg:30.0,ppg:14.2,s:null},
+{n:"Zuby Ejiofor",gp:34,mpg:28.5,ppg:13.1,s:null},
+{n:"Kadary Richmond",gp:32,mpg:27.5,ppg:11.8,s:null}]},
+{seed:6,name:"Louisville",rec:"23-10",ff:false,players:[
+{n:"Chucky Hepburn",gp:33,mpg:33.0,ppg:17.4,s:null},
+{n:"Kasean Pryor",gp:33,mpg:28.0,ppg:14.1,s:null},
+{n:"J'Vonne Hadley",gp:33,mpg:26.0,ppg:11.0,s:null},
+{n:"Aboubacar Traore",gp:31,mpg:24.0,ppg:10.3,s:null}]},
+{seed:7,name:"UCLA",rec:"23-11",ff:false,players:[
+{n:"Eric Dailey Jr.",gp:34,mpg:31.0,ppg:16.2,s:null},
+{n:"Skyy Clark",gp:34,mpg:30.0,ppg:14.5,s:null},
+{n:"Tyler Bilodeau",gp:33,mpg:27.5,ppg:12.1,s:null},
+{n:"Kobe Johnson",gp:32,mpg:25.0,ppg:10.6,s:null}]},
+{seed:8,name:"Ohio State",rec:"21-12",ff:false,players:[
+{n:"Evan Mahaffey",gp:33,mpg:29.5,ppg:15.1,s:null},
+{n:"John Mobley Jr.",gp:33,mpg:31.0,ppg:13.6,s:null},
+{n:"Bruce Thornton",gp:33,mpg:30.0,ppg:13.0,s:null},
+{n:"Devin Royal",gp:31,mpg:26.0,ppg:11.3,s:null}]},
+{seed:9,name:"TCU",rec:"22-11",ff:false,players:[
+{n:"Vasean Allette",gp:33,mpg:30.5,ppg:16.5,s:null},
+{n:"JaKobe Coles",gp:33,mpg:29.0,ppg:14.0,s:null},
+{n:"Jameer Nelson Jr.",gp:33,mpg:31.0,ppg:13.2,s:null},
+{n:"Xavier Cork",gp:31,mpg:25.0,ppg:10.8,s:null}]},
+{seed:10,name:"UCF",rec:"21-11",ff:false,players:[
+{n:"Darius Johnson",gp:32,mpg:32.0,ppg:18.3,s:null},
+{n:"Keyshawn Hall",gp:32,mpg:28.5,ppg:14.0,s:null},
+{n:"Isaiah Adams",gp:32,mpg:26.0,ppg:11.2,s:null}]},
+{seed:11,name:"South Florida",rec:"25-8",ff:false,players:[
+{n:"Wes Enis",gp:33,mpg:31.5,ppg:16.5,s:null},
+{n:"Izaiyah Nelson",gp:33,mpg:29.0,ppg:15.8,s:null},
+{n:"Joseph Pinion",gp:33,mpg:27.5,ppg:14.2,s:null},
+{n:"Josh Omojafo",gp:31,mpg:26.0,ppg:11.7,s:null},
+{n:"CJ Brown",gp:30,mpg:25.0,ppg:11.4,s:null}]},
+{seed:12,name:"Northern Iowa",rec:"23-12",ff:false,players:[
+{n:"Trae Berhow",gp:35,mpg:29.0,ppg:14.6,s:null},
+{n:"Tytan Anderson",gp:35,mpg:27.5,ppg:13.3,s:null},
+{n:"Bowen Born",gp:35,mpg:30.0,ppg:12.7,s:null},
+{n:"Cole Henry",gp:33,mpg:25.0,ppg:10.3,s:null}]},
+{seed:13,name:"Cal Baptist",rec:"25-8",ff:false,players:[
+{n:"Bo Hodges",gp:33,mpg:31.0,ppg:17.2,s:null},
+{n:"Makol Mawien",gp:33,mpg:28.5,ppg:14.6,s:null},
+{n:"Josiah Allick",gp:33,mpg:26.0,ppg:12.1,s:null},
+{n:"Elijah Thomas",gp:31,mpg:24.5,ppg:10.8,s:null}]},
+{seed:14,name:"North Dakota State",rec:"27-7",ff:false,players:[
+{n:"Dezmond McKinney",gp:34,mpg:28.0,ppg:14.0,s:null},
+{n:"Talon Walker",gp:32,mpg:24.0,ppg:10.3,s:null}]},
+{seed:15,name:"Furman",rec:"22-12",ff:false,players:[
+{n:"Mike Bothwell",gp:34,mpg:32.0,ppg:18.3,s:null},
+{n:"JP Pegues",gp:34,mpg:28.5,ppg:15.0,s:null},
+{n:"Garrett Hien",gp:34,mpg:27.0,ppg:12.8,s:null},
+{n:"Alex Williams",gp:32,mpg:24.5,ppg:10.6,s:null}]},
+{seed:16,name:"Siena",rec:"23-11",ff:false,players:[
+{n:"Jackson Stormo",gp:34,mpg:29.5,ppg:16.7,s:null},
+{n:"Javian McCollum",gp:34,mpg:31.0,ppg:16.0,s:null},
+{n:"Miles Dread",gp:34,mpg:27.0,ppg:12.3,s:null},
+{n:"Aidan Carpenter",gp:32,mpg:24.5,ppg:10.6,s:null}]}
+],
+South:[
+{seed:1,name:"Florida",rec:"26-7",ff:false,players:[
+{n:"Thomas Haugh",gp:28,mpg:33.4,ppg:16.9,s:null},
+{n:"Alex Condon",gp:27,mpg:30.6,ppg:14.3,s:null},
+{n:"Boogie Fland",gp:28,mpg:29.9,ppg:11.5,s:null},
+{n:"Xaivian Lee",gp:28,mpg:27.1,ppg:11.4,s:null},
+{n:"Rueben Chinyelu",gp:28,mpg:24.4,ppg:11.3,s:null},
+{n:"Urban Klavzar",gp:28,mpg:21.3,ppg:10.0,s:null}]},
+{seed:2,name:"Houston",rec:"28-6",ff:false,players:[
+{n:"Emanuel Sharp",gp:17,mpg:29.3,ppg:15.9,s:null},
+{n:"Kingston Flemings",gp:17,mpg:30.3,ppg:15.4,s:null},
+{n:"Milos Uzan",gp:17,mpg:32.6,ppg:11.3,s:null},
+{n:"Chris Cenac Jr.",gp:17,mpg:24.2,ppg:9.1,s:null},
+{n:"Joseph Tugler",gp:17,mpg:23.3,ppg:8.4,s:null}]},
+{seed:3,name:"Illinois",rec:"24-8",ff:false,players:[
+{n:"Keaton Wagler",gp:20,mpg:31.7,ppg:17.5,s:null},
+{n:"Kylan Boswell",gp:18,mpg:31.8,ppg:14.3,s:null},
+{n:"Andrej Stojakovic",gp:19,mpg:27.0,ppg:13.9,s:null},
+{n:"David Mirkovic",gp:20,mpg:28.0,ppg:12.2,s:null},
+{n:"Tomislav Ivisic",gp:17,mpg:23.8,ppg:10.2,s:null}]},
+{seed:4,name:"Nebraska",rec:"26-6",ff:false,players:[
+{n:"Pryce Sandfort",gp:27,mpg:32.7,ppg:17.9,s:null},
+{n:"Rienk Mast",gp:26,mpg:28.6,ppg:13.8,s:null},
+{n:"Braden Frager",gp:25,mpg:23.2,ppg:11.7,s:null},
+{n:"Jamarques Lawrence",gp:27,mpg:27.6,ppg:10.6,s:null},
+{n:"Sam Hoiberg",gp:27,mpg:31.8,ppg:9.5,s:null}]},
+{seed:5,name:"Vanderbilt",rec:"26-8",ff:false,players:[
+{n:"Jason Edwards",gp:34,mpg:33.0,ppg:17.0,s:null},
+{n:"AJ Hoggard",gp:34,mpg:30.5,ppg:13.3,s:null},
+{n:"Devin McGlockton",gp:34,mpg:26.5,ppg:11.9,s:null},
+{n:"Tyler Nickel",gp:32,mpg:25.0,ppg:10.6,s:null}]},
+{seed:6,name:"North Carolina",rec:"24-8",ff:false,players:[
+{n:"Elliot Cadeau",gp:32,mpg:30.5,ppg:16.3,s:null},
+{n:"Ian Jackson",gp:32,mpg:29.0,ppg:15.6,s:null},
+{n:"Drake Powell",gp:32,mpg:27.5,ppg:13.0,s:null},
+{n:"Jalen Washington",gp:30,mpg:24.5,ppg:11.3,s:null}]},
+{seed:7,name:"Saint Mary's",rec:"27-5",ff:false,players:[
+{n:"Paulius Murauskas",gp:32,mpg:28.7,ppg:18.3,s:null},
+{n:"Mikey Lewis",gp:32,mpg:28.0,ppg:15.3,s:null}]},
+{seed:8,name:"Clemson",rec:"24-10",ff:false,players:[
+{n:"Chase Hunter",gp:34,mpg:32.0,ppg:17.3,s:null},
+{n:"PJ Hall",gp:34,mpg:28.5,ppg:15.6,s:null},
+{n:"Ian Schieffelin",gp:34,mpg:26.0,ppg:12.2,s:null},
+{n:"Josh Beadle",gp:32,mpg:24.5,ppg:10.8,s:null}]},
+{seed:9,name:"Iowa",rec:"21-12",ff:false,players:[
+{n:"Bennett Stirtz",gp:33,mpg:37.0,ppg:20.0,s:null},
+{n:"Tavion Banks",gp:33,mpg:26.0,ppg:10.6,s:null}]},
+{seed:10,name:"Texas A&M",rec:"21-11",ff:false,players:[
+{n:"Zhuric Phelps",gp:32,mpg:30.5,ppg:17.0,s:null},
+{n:"Henry Coleman III",gp:32,mpg:28.0,ppg:13.6,s:null},
+{n:"Manny Obaseki",gp:32,mpg:26.5,ppg:12.2,s:null},
+{n:"Wade Taylor IV",gp:30,mpg:29.0,ppg:11.3,s:null}]},
+{seed:11,name:"VCU",rec:"27-7",ff:false,players:[
+{n:"Max Shulga",gp:34,mpg:30.5,ppg:16.3,s:null},
+{n:"Zeb Jackson",gp:34,mpg:29.0,ppg:14.6,s:null},
+{n:"Jalen DeLoach",gp:34,mpg:27.5,ppg:13.0,s:null},
+{n:"Joe Bamisile",gp:32,mpg:25.0,ppg:11.8,s:null},
+{n:"Jamir Watkins",gp:30,mpg:22.5,ppg:10.3,s:null}]},
+{seed:12,name:"McNeese",rec:"28-5",ff:false,players:[
+{n:"Christian Shumate",gp:33,mpg:29.5,ppg:17.2,s:null},
+{n:"Zach Scott",gp:33,mpg:31.0,ppg:16.6,s:null},
+{n:"Harwin Francois",gp:33,mpg:27.5,ppg:13.0,s:null},
+{n:"Jakobe Coles",gp:31,mpg:24.5,ppg:11.3,s:null}]},
+{seed:13,name:"Troy",rec:"22-11",ff:false,players:[
+{n:"Duke Miles",gp:33,mpg:30.5,ppg:16.3,s:null},
+{n:"Tayton Conerway",gp:33,mpg:27.5,ppg:14.0,s:null},
+{n:"Zay Williams",gp:33,mpg:26.0,ppg:12.3,s:null},
+{n:"Chandler Leopard",gp:31,mpg:23.5,ppg:10.6,s:null}]},
+{seed:14,name:"Penn",rec:"18-11",ff:false,players:[
+{n:"Jordan Dingle",gp:29,mpg:31.5,ppg:19.2,s:null},
+{n:"AJ Brodeur",gp:29,mpg:28.0,ppg:14.6,s:null},
+{n:"Luka Brajkovic",gp:29,mpg:26.5,ppg:12.0,s:null},
+{n:"Max Martz",gp:27,mpg:24.0,ppg:10.2,s:null}]},
+{seed:15,name:"Idaho",rec:"21-14",ff:false,players:[
+{n:"Mikey Dixon",gp:35,mpg:31.5,ppg:18.0,s:null},
+{n:"Kolby Lee",gp:35,mpg:28.5,ppg:15.3,s:null},
+{n:"Devin Glover",gp:35,mpg:27.0,ppg:12.9,s:null},
+{n:"Trevon Blasingame",gp:33,mpg:24.5,ppg:10.6,s:null}]},
+{seed:16,name:"Prairie View A&M / Lehigh",rec:"TBD",ff:true,tbd:true,players:[]}
+],
+West:[
+{seed:1,name:"Arizona",rec:"32-2",ff:false,players:[
+{n:"Koa Peat",gp:16,mpg:27.4,ppg:14.8,s:null},
+{n:"Brayden Burries",gp:16,mpg:27.6,ppg:14.6,s:null},
+{n:"Jaden Bradley",gp:16,mpg:27.7,ppg:13.6,s:null},
+{n:"Motiejus Krivas",gp:16,mpg:23.5,ppg:11.1,s:null},
+{n:"Anthony Dell'Orso",gp:16,mpg:23.0,ppg:10.2,s:null},
+{n:"Tobe Awaka",gp:16,mpg:20.2,ppg:9.9,s:null},
+{n:"Ivan Kharchenkov",gp:16,mpg:24.9,ppg:8.8,s:null}]},
+{seed:2,name:"Purdue",rec:"27-8",ff:false,players:[
+{n:"Fletcher Loyer",gp:14,mpg:27.9,ppg:14.4,s:null},
+{n:"Trey Kaufman-Renn",gp:12,mpg:26.9,ppg:13.8,s:null},
+{n:"Braden Smith",gp:14,mpg:32.1,ppg:12.6,s:null},
+{n:"Oscar Cluff",gp:14,mpg:22.9,ppg:11.4,s:null},
+{n:"Daniel Jacobsen",gp:14,mpg:16.2,ppg:8.7,s:null},
+{n:"C.J. Cox",gp:14,mpg:22.9,ppg:8.1,s:null}]},
+{seed:3,name:"Gonzaga",rec:"30-3",ff:false,players:[
+{n:"Braden Huff",gp:12,mpg:24.9,ppg:19.0,s:"QUEST",r:"Knee injury"},
+{n:"Graham Ike",gp:11,mpg:26.9,ppg:17.0,s:null},
+{n:"Tyon Grant-Foster",gp:12,mpg:20.5,ppg:10.8,s:null},
+{n:"Adam Miller",gp:12,mpg:18.3,ppg:8.8,s:null},
+{n:"Mario Saint-Supery",gp:12,mpg:22.3,ppg:8.7,s:null}]},
+{seed:4,name:"Arkansas",rec:"26-8",ff:false,players:[
+{n:"Darius Acuff Jr.",gp:18,mpg:33.1,ppg:22.2,s:null},
+{n:"Meleek Thomas",gp:18,mpg:26.8,ppg:15.3,s:null},
+{n:"Trevon Brazile",gp:17,mpg:27.8,ppg:13.1,s:null},
+{n:"Malique Ewin",gp:18,mpg:17.5,ppg:9.6,s:null},
+{n:"Karter Knox",gp:17,mpg:22.8,ppg:8.5,s:null},
+{n:"Billy Richmond III",gp:18,mpg:22.5,ppg:8.4,s:null}]},
+{seed:5,name:"Wisconsin",rec:"24-10",ff:false,players:[
+{n:"John Blackwell",gp:34,mpg:30.5,ppg:16.3,s:null},
+{n:"Nolan Winter",gp:34,mpg:28.0,ppg:12.2,s:null},
+{n:"Carter Gilmore",gp:34,mpg:27.5,ppg:11.6,s:null},
+{n:"Kamari McGee",gp:32,mpg:25.0,ppg:11.0,s:null},
+{n:"Steven Crowl",gp:32,mpg:24.5,ppg:10.3,s:null}]},
+{seed:6,name:"BYU",rec:"23-11",ff:false,players:[
+{n:"Richie Saunders",gp:34,mpg:31.0,ppg:16.6,s:null},
+{n:"Trevin Knell",gp:34,mpg:29.5,ppg:15.0,s:null},
+{n:"Dallin Hall",gp:34,mpg:30.5,ppg:14.3,s:null},
+{n:"Fousseyni Traore",gp:32,mpg:26.0,ppg:11.9,s:null},
+{n:"Noah Waterman",gp:30,mpg:24.0,ppg:10.6,s:null}]},
+{seed:7,name:"Miami (FL)",rec:"25-8",ff:false,players:[
+{n:"Wooga Poplar",gp:33,mpg:30.5,ppg:16.2,s:null},
+{n:"Matthew Cleveland",gp:33,mpg:29.0,ppg:15.0,s:null},
+{n:"Norchad Omier",gp:33,mpg:27.5,ppg:13.6,s:null},
+{n:"Nijel Pack",gp:31,mpg:25.0,ppg:12.3,s:null},
+{n:"Isaiah Wong",gp:29,mpg:23.0,ppg:10.6,s:null}]},
+{seed:8,name:"Villanova",rec:"24-8",ff:false,players:[
+{n:"Tyler Perkins",gp:31,mpg:29.5,ppg:13.1,s:null},
+{n:"Devin Askew",gp:31,mpg:28.5,ppg:10.1,s:null}]},
+{seed:9,name:"Utah State",rec:"28-6",ff:false,players:[
+{n:"Ian Martinez",gp:31,mpg:31.0,ppg:16.8,s:null},
+{n:"Mason Falslev",gp:33,mpg:30.0,ppg:16.1,s:null}]},
+{seed:10,name:"Missouri",rec:"20-12",ff:false,players:[
+{n:"Sean East II",gp:32,mpg:32.0,ppg:18.2,s:null},
+{n:"Aidan Shaw",gp:32,mpg:28.5,ppg:14.3,s:null},
+{n:"Nick Honor",gp:32,mpg:27.0,ppg:12.0,s:null},
+{n:"Trent Pierce",gp:30,mpg:24.0,ppg:10.3,s:null}]},
+{seed:11,name:"Texas",rec:"18-14",ff:true,players:[{n:"Dailyn Swain",gp:23,mpg:31.1,ppg:17.7,s:null}]},
+{seed:11,name:"NC State",rec:"20-13",ff:true,players:[{n:"Paul McNeil Jr.",gp:33,mpg:28.4,ppg:13.9,s:null}]},
+{seed:12,name:"High Point",rec:"30-4",ff:false,players:[
+{n:"Kezza Giffa",gp:34,mpg:31.5,ppg:14.6,s:null},
+{n:"Kimani Hamilton",gp:34,mpg:29.0,ppg:13.2,s:null},
+{n:"John-Michael Wright",gp:34,mpg:27.5,ppg:12.0,s:null},
+{n:"Zane Seljaas",gp:32,mpg:25.0,ppg:10.6,s:null}]},
+{seed:13,name:"Hawai'i",rec:"24-8",ff:false,players:[
+{n:"Juan Munoz",gp:32,mpg:30.0,ppg:16.3,s:null},
+{n:"Bernardo da Silva",gp:32,mpg:27.5,ppg:14.0,s:null},
+{n:"Alex Caldwell",gp:32,mpg:26.5,ppg:12.6,s:null},
+{n:"Ziggy Reid",gp:30,mpg:23.5,ppg:10.7,s:null}]},
+{seed:14,name:"Kennesaw State",rec:"21-13",ff:false,players:[
+{n:"Simeon Cottle",gp:34,mpg:31.5,ppg:20.2,s:null},
+{n:"RJ Johnson",gp:34,mpg:28.0,ppg:14.5,s:null},
+{n:"Braden Lue",gp:34,mpg:26.0,ppg:11.1,s:null},
+{n:"Frankquon Sherman",gp:34,mpg:25.0,ppg:10.3,s:null}]},
+{seed:15,name:"Queens",rec:"21-13",ff:false,players:[
+{n:"Khalyl Waters",gp:34,mpg:31.0,ppg:18.3,s:null},
+{n:"Marcus Garrett",gp:34,mpg:28.5,ppg:15.0,s:null},
+{n:"James Rojas",gp:34,mpg:27.0,ppg:12.6,s:null},
+{n:"Luke Hollingsworth",gp:32,mpg:24.0,ppg:10.3,s:null}]},
+{seed:16,name:"LIU",rec:"24-10",ff:false,players:[
+{n:"Anthony Roberts",gp:34,mpg:31.0,ppg:17.6,s:null},
+{n:"Ray Salnave",gp:34,mpg:28.5,ppg:15.0,s:null},
+{n:"Tai Strickland",gp:34,mpg:27.0,ppg:12.3,s:null},
+{n:"Moses Flowers",gp:32,mpg:24.0,ppg:10.6,s:null}]}
+],
+Midwest:[
+{seed:1,name:"Michigan",rec:"31-3",ff:false,players:[
+{n:"Yaxel Lendeborg",gp:31,mpg:29.8,ppg:14.7,s:null},
+{n:"Morez Johnson Jr.",gp:31,mpg:24.8,ppg:13.7,s:null},
+{n:"Aday Mara",gp:31,mpg:22.5,ppg:11.3,s:null},
+{n:"Trey McKenney",gp:31,mpg:21.1,ppg:9.6,s:null},
+{n:"L.J. Cason",gp:28,mpg:18.6,ppg:8.4,s:null},
+{n:"Nimari Burnett",gp:31,mpg:19.4,ppg:8.4,s:null},
+{n:"Roddy Gayle Jr.",gp:30,mpg:20.5,ppg:7.4,s:null}]},
+{seed:2,name:"Iowa State",rec:"27-7",ff:false,players:[
+{n:"Milan Momcilovic",gp:34,mpg:28.2,ppg:17.1,s:null},
+{n:"Joshua Jefferson",gp:34,mpg:30.0,ppg:16.6,s:null},
+{n:"Tamin Lipsey",gp:34,mpg:30.9,ppg:14.2,s:null},
+{n:"Killyan Toure",gp:34,mpg:26.5,ppg:11.0,s:null}]},
+{seed:3,name:"Virginia",rec:"29-5",ff:false,players:[
+{n:"Thijs De Ridder",gp:28,mpg:27.7,ppg:16.0,s:null},
+{n:"Malik Thomas",gp:28,mpg:22.7,ppg:12.3,s:null},
+{n:"Sam Lewis",gp:28,mpg:25.5,ppg:10.9,s:null},
+{n:"Chance Mallory",gp:28,mpg:24.5,ppg:10.2,s:null}]},
+{seed:4,name:"Alabama",rec:"23-9",ff:false,players:[
+{n:"Labaron Philon Jr.",gp:29,mpg:30.2,ppg:21.5,s:null},
+{n:"Aden Holloway",gp:27,mpg:28.5,ppg:16.8,s:null},
+{n:"Latrell Wrightsell",gp:23,mpg:27.0,ppg:13.3,s:null},
+{n:"Amari Allen",gp:28,mpg:28.5,ppg:11.9,s:null},
+{n:"Aiden Sherrell",gp:30,mpg:23.4,ppg:11.0,s:null},
+{n:"Charles Bediako",gp:5,mpg:21.6,ppg:10.0,s:null}]},
+{seed:5,name:"Texas Tech",rec:"22-10",ff:false,players:[
+{n:"JT Toppin",gp:32,mpg:30.5,ppg:19.0,s:"OUT",r:"ACL tear"},
+{n:"Pop Isaacs",gp:32,mpg:29.5,ppg:16.3,s:null},
+{n:"Darrion Williams",gp:32,mpg:27.0,ppg:13.2,s:null},
+{n:"De'Vion Harmon",gp:30,mpg:25.5,ppg:11.9,s:null},
+{n:"Kevin Obanor",gp:28,mpg:22.5,ppg:10.3,s:null}]},
+{seed:6,name:"Tennessee",rec:"22-11",ff:false,players:[
+{n:"Nate Ament",gp:33,mpg:30.3,ppg:18.2,s:null},
+{n:"Ja'Kobi Gillespie",gp:33,mpg:34.0,ppg:18.1,s:null}]},
+{seed:7,name:"Kentucky",rec:"21-13",ff:false,players:[
+{n:"Otega Oweh",gp:34,mpg:31.5,ppg:18.0,s:null},
+{n:"Andrew Carr",gp:34,mpg:28.5,ppg:14.3,s:null},
+{n:"Lamont Butler",gp:34,mpg:30.0,ppg:13.6,s:null},
+{n:"Koby Brea",gp:32,mpg:26.5,ppg:12.2,s:null},
+{n:"Brandon Garrison",gp:30,mpg:24.0,ppg:10.3,s:null}]},
+{seed:8,name:"Georgia",rec:"22-10",ff:false,players:[
+{n:"Blue Cain",gp:32,mpg:29.5,ppg:15.0,s:null},
+{n:"RJ Godfrey",gp:32,mpg:27.0,ppg:13.3,s:null},
+{n:"Dylan James",gp:30,mpg:25.5,ppg:11.9,s:null},
+{n:"Tyrin Lawrence",gp:28,mpg:23.0,ppg:10.2,s:null}]},
+{seed:9,name:"Saint Louis",rec:"28-5",ff:false,players:[
+{n:"Gibson Jimerson",gp:33,mpg:30.5,ppg:17.3,s:null},
+{n:"Terrence Hargrove Jr.",gp:33,mpg:28.5,ppg:15.6,s:null},
+{n:"Yuri Collins",gp:33,mpg:32.0,ppg:14.0,s:null},
+{n:"Javon Pickett",gp:31,mpg:26.0,ppg:12.3,s:null},
+{n:"Francis Okoro",gp:29,mpg:23.5,ppg:10.6,s:null}]},
+{seed:10,name:"Santa Clara",rec:"26-8",ff:false,players:[
+{n:"Christian Hammond",gp:34,mpg:29.0,ppg:15.8,s:null},
+{n:"Elijah Mahi",gp:34,mpg:30.0,ppg:13.9,s:null},
+{n:"Allen Graves",gp:34,mpg:27.0,ppg:11.6,s:null}]},
+{seed:11,name:"Miami (OH)",rec:"31-1",ff:true,players:[{n:"Brant Byers",gp:20,mpg:29.8,ppg:15.3,s:null}]},
+{seed:11,name:"SMU",rec:"20-13",ff:true,players:[{n:"Boopie Miller",gp:13,mpg:34.4,ppg:19.9,s:null}]},
+{seed:12,name:"Akron",rec:"29-5",ff:false,players:[
+{n:"Enrique Freeman",gp:34,mpg:30.5,ppg:17.6,s:null},
+{n:"Tavari Johnson",gp:34,mpg:28.0,ppg:15.3,s:null},
+{n:"Ali Ali",gp:34,mpg:27.5,ppg:13.0,s:null},
+{n:"Bryan Trimble Jr.",gp:32,mpg:25.0,ppg:11.3,s:null}]},
+{seed:13,name:"Hofstra",rec:"24-10",ff:false,players:[
+{n:"Darlinstone Dubar",gp:34,mpg:30.0,ppg:17.0,s:null},
+{n:"Tyler Thomas",gp:34,mpg:28.5,ppg:15.3,s:null},
+{n:"Jalen Ray",gp:34,mpg:29.5,ppg:13.9,s:null},
+{n:"Khalid Moore",gp:32,mpg:25.0,ppg:11.3,s:null}]},
+{seed:14,name:"Wright State",rec:"23-11",ff:false,players:[
+{n:"Tanner Holden",gp:34,mpg:32.0,ppg:20.3,s:null},
+{n:"Brandon Noel",gp:34,mpg:29.0,ppg:16.0,s:null},
+{n:"AJ Braun",gp:34,mpg:27.5,ppg:14.6,s:null},
+{n:"Tim Finke",gp:32,mpg:24.5,ppg:12.3,s:null},
+{n:"Alex Huibregtse",gp:30,mpg:22.0,ppg:10.0,s:null}]},
+{seed:15,name:"Tennessee State",rec:"23-9",ff:false,players:[
+{n:"Carlos Marshall Jr.",gp:32,mpg:31.0,ppg:19.0,s:null},
+{n:"Dre Scott",gp:32,mpg:28.5,ppg:15.6,s:null},
+{n:"Marcus Fitzgerald",gp:32,mpg:27.0,ppg:13.3,s:null},
+{n:"Savion Lewis",gp:30,mpg:24.5,ppg:11.0,s:null}]},
+{seed:16,name:"UMBC / Howard",rec:"TBD",ff:true,tbd:true,players:[]}
+]};
 
-const INJURIES={
-  'Caleb Foster':    {status:'out', note:'Fractured foot — out for tournament'},
-  'Patrick Ngongba': {status:'q',   note:'Foot soreness — questionable'},
-  'Braden Huff':     {status:'q',   note:'Knee injury — unlikely first weekend'},
-  'JT Toppin':       {status:'out', note:'ACL tear — out for tournament'},
-};
-
-const regions=Object.keys(BRACKET);
-
-let activeRegion='East';
-const openState={};
-
-function seedClass(s){return s===1?'s1':s===2?'s2':s===3?'s3':s===4?'s4':'s-other'}
-
-function renderTabs(){
-  document.getElementById('regionTabs').innerHTML=regions.map(r=>
-    `<button class="tab${r===activeRegion?' active':''}" onclick="setRegion('${r}')">${r}</button>`
-  ).join('');
-}
-
-function renderMeta(){
-  const d=BRACKET[activeRegion];
-  document.getElementById('regionName').textContent=activeRegion+' Region';
-  document.getElementById('regionMeta').textContent='No. 1 seed: '+d.seed1;
-}
-
-function renderTeams(){
-  const list=document.getElementById('teamList');
-  list.innerHTML=BRACKET[activeRegion].teams.map(t=>{
-    const key=activeRegion+'_'+t.seed;
-    const isOpen=!!openState[key];
-    const minPPG=t.seed<=2?7:t.seed<=4?8:10;
-    const isTBD=t.players[0].name.startsWith('TBD');
-    const filtered=isTBD?[]:t.players.filter(p=>p.ppg>=minPPG||INJURIES[p.name]);
-    let bodyHtml='';
-    if(isOpen){
-      if(isTBD){
-        bodyHtml='<p class="no-players">Team to be determined after First Four play-in game.</p>';
-      } else if(filtered.length===0){
-        bodyHtml=`<p class="no-players">No players averaging ${minPPG}+ PPG.</p>`;
-      } else {
-        const rows=filtered.map(p=>{
-          const val=`${p.name} - ${t.name}`;
-          const rid=`r_${val.replace(/[^a-zA-Z0-9]/g,'_')}`;
-          const inj=INJURIES[p.name];
-          const injBadge=inj ? `<span class="inj-${inj.status==='out'?'out':'q'}" title="${inj.note}">${inj.status==='out'?'OUT':'QUEST'}</span>` : '';
-          const injClass=inj && inj.status==='out' ? 'inj-row-out' : '';
-          const injDisabled=inj && inj.status==='out' ? ' disabled' : '';
-          return `<tr class="${injClass}">
-            <td class="radio-col"><input type="radio" name="playerPick" id="${rid}" value="${val}"${injDisabled} onchange="selectPlayer('${val.replace(/'/g,"\\'")}')"></td>
-            <td><label for="${rid}" style="cursor:pointer">${p.name}</label>${injBadge}</td>
-            <td class="r">${p.gp}</td><td class="r">${p.mpg.toFixed(1)}</td><td class="ppg">${p.ppg.toFixed(1)}</td>
-          </tr>`;
-        }).join('');
-        const srcLabel=t.src?`· Source: ${t.src}`:'';
-        bodyHtml=`<table class="stats"><thead><tr><th></th><th>Player</th><th class="r">GP</th><th class="r">MPG</th><th class="r">PPG</th></tr></thead><tbody>${rows}</tbody></table>
-        <p class="filter-note">Showing ${minPPG}+ PPG · Seed ${t.seed} ${srcLabel}</p>`;
-      }
-    }
-    return `<div class="team-card${isOpen?' open':''}">
-      <div class="team-header" onclick="toggle('${key}')">
-        <div class="seed-pill ${seedClass(t.seed)}">${t.seed}</div>
-        <div class="team-name">${t.name}</div>
-        <div class="team-record">${t.record}</div>
-        <div class="chevron">&#9660;</div>
-      </div>
-      <div class="team-body">${bodyHtml}</div>
-    </div>`;
-  }).join('');
-}
-
-function setRegion(r){activeRegion=r;renderTabs();renderMeta();renderTeams()}
-function toggle(key){openState[key]=!openState[key];renderTeams()}
-
-let currentPlayer='';
-let lastAction=null;
-
-function selectPlayer(val){
-  currentPlayer=val;
-  document.getElementById('selectedLabel').textContent=val;
-  document.getElementById('sendBtn').disabled=false;
-  const st=document.getElementById('sheetsStatus');
-  st.className='sheets-status';
-  st.textContent='';
-}
-
-async function sendToSheets(){
-  const url=document.getElementById('scriptUrl').value.trim();
-  const cell=document.getElementById('targetCell').value.trim().toUpperCase();
-  const st=document.getElementById('sheetsStatus');
-
-  if(!url){
-    st.className='sheets-status err';
-    st.textContent='Paste your Apps Script URL first';
-    return;
-  }
-  if(!cell.match(/^[A-Z]+\d+$/)){
-    st.className='sheets-status err';
-    st.textContent='Invalid cell — use format like B5';
-    return;
-  }
-  if(!currentPlayer){
-    st.className='sheets-status err';
-    st.textContent='Select a player first';
-    return;
-  }
-
-  st.className='sheets-status sending';
-  st.textContent='Sending…';
-  document.getElementById('sendBtn').disabled=true;
-
-  const params=new URLSearchParams({sheet:'Player Totals',cell:cell,value:currentPlayer});
-
-  try{
-    const res=await fetch(`${url}?${params}`);
-    const json=await res.json();
-    if(json.status==='success'){
-      st.className='sheets-status ok';
-      st.textContent='Written to '+cell;
-      // Strike through and disable the selected radio + its row
-      const checked=document.querySelector('input[name="playerPick"]:checked');
-      if(checked){
-        checked.disabled=true;
-        const row=checked.closest('tr');
-        if(row) row.classList.add('used-player');
-        // Save for undo
-        lastAction={cell:cell, value:currentPlayer, radio:checked, row:row};
-        document.getElementById('undoBtn').disabled=false;
-      }
-      // Reset selection
-      currentPlayer='';
-      document.getElementById('selectedLabel').textContent='No player selected';
-      document.getElementById('sendBtn').disabled=true;
-    } else {
-      st.className='sheets-status err';
-      st.textContent='Error: '+json.message;
-      document.getElementById('sendBtn').disabled=false;
-    }
-  } catch(e){
-    st.className='sheets-status err';
-    st.textContent='Could not reach script — check URL';
-    document.getElementById('sendBtn').disabled=false;
-  }
-}
-
-async function undoLast(){
-  if(!lastAction) return;
-  const url=document.getElementById('scriptUrl').value.trim();
-  const st=document.getElementById('sheetsStatus');
-  const {cell, radio, row}=lastAction;
-
-  st.className='sheets-status sending';
-  st.textContent='Undoing…';
-  document.getElementById('undoBtn').disabled=true;
-
-  const params=new URLSearchParams({sheet:'Player Totals',cell:cell,value:''});
-
-  try{
-    const res=await fetch(`${url}?${params}`);
-    const json=await res.json();
-    if(json.status==='success'){
-      // Re-enable the row
-      radio.disabled=false;
-      radio.checked=false;
-      if(row) row.classList.remove('used-player');
-      lastAction=null;
-      st.className='sheets-status ok';
-      st.textContent='Undo successful — '+cell+' cleared';
-    } else {
-      st.className='sheets-status err';
-      st.textContent='Undo failed: '+json.message;
-      document.getElementById('undoBtn').disabled=false;
-    }
-  } catch(e){
-    st.className='sheets-status err';
-    st.textContent='Undo failed — could not reach script';
-    document.getElementById('undoBtn').disabled=false;
-  }
-}
-
-function resetDraft(){
-  if(!confirm('Reset the draft? This will restore all players and clear your selections on this page. It will NOT clear the Google Sheet.')) return;
-
-  // Re-enable all disabled radios and remove strikethrough from all rows
-  document.querySelectorAll('input[name="playerPick"]').forEach(r=>{
-    // Don't re-enable players who are confirmed OUT
-    const row=r.closest('tr');
-    r.disabled=false;
-    r.checked=false;
-    if(row) row.classList.remove('used-player');
+let lastSent=null,rid=0;
+function sc(s){return s===1?'s1':s===2?'s2':s===3?'s3':s===4?'s4':'so'}
+function buildRegion(r){
+  const g=document.getElementById('g-'+r);
+  B[r].forEach(t=>{
+    const c=document.createElement('div');c.className='team-card';
+    const h=`<div class="team-header"><span class="seed-badge ${sc(t.seed)}">${t.seed}</span><span class="team-name">${t.name}</span><span class="team-record">${t.rec}</span>${t.ff?'<span class="ff-tag">FIRST FOUR</span>':''}</div>`;
+    let b='';
+    if(t.tbd){b='<div class="tbd-row">First Four winner TBD &mdash; update after Mar 17&ndash;18</div>';}
+    else{t.players.forEach(p=>{
+      const id='r'+(rid++);
+      const badge=p.s==='OUT'?`<span class="badge badge-out" title="${p.r||''}">OUT</span>`:p.s==='QUEST'?`<span class="badge badge-quest" title="${p.r||''}">QUEST</span>`:'';
+      b+=`<div class="player-row" id="row-${id}"><input type="radio" name="pick" id="${id}" value="${p.n} - ${t.name}"><span class="player-name">${p.n} ${badge}</span><span class="player-stats">${p.gp}g&nbsp;${p.mpg.toFixed(1)}m&nbsp;<strong>${p.ppg.toFixed(1)}</strong>pts</span></div>`;
+    });}
+    c.innerHTML=h+b;g.appendChild(c);
   });
-
-  // Reset state
-  currentPlayer='';
-  lastAction=null;
-  document.getElementById('selectedLabel').textContent='No player selected';
-  document.getElementById('sendBtn').disabled=true;
-  document.getElementById('undoBtn').disabled=true;
-  const st=document.getElementById('sheetsStatus');
-  st.className='sheets-status ok';
-  st.textContent='Draft reset';
-  setTimeout(()=>{st.className='sheets-status';st.textContent='';},2500);
 }
-
-window.setRegion=setRegion;
-window.toggle=toggle;
-window.selectPlayer=selectPlayer;
-window.sendToSheets=sendToSheets;
-window.undoLast=undoLast;
-window.resetDraft=resetDraft;
-renderTabs();renderMeta();renderTeams();
+['East','South','West','Midwest'].forEach(buildRegion);
+function switchTab(r,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById(r).classList.add('active');
+}
+async function sendToSheet(){
+  const cell=document.getElementById('cellRef').value.trim().toUpperCase();
+  const picked=document.querySelector('input[name="pick"]:checked');
+  const status=document.getElementById('sendStatus');
+  const btn=document.getElementById('sendBtn');
+  if(!/^[A-Z]+\d+$/.test(cell)){status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';return;}
+  if(!picked){status.textContent='⚠ Select a player first';status.className='send-status err';return;}
+  const value=picked.value;
+  const rowEl=document.getElementById('row-'+picked.id);
+  const url=document.getElementById('scriptUrl').value;
+  btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
+  try{
+    await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
+    rowEl.classList.add('drafted');picked.disabled=true;
+    lastSent={cell,rowEl,radioEl:picked};
+    document.getElementById('undoBtn').disabled=false;
+    status.textContent=`\u2713 ${value} \u2192 ${cell}`;status.className='send-status ok';
+    picked.checked=false;
+  }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
+  finally{btn.disabled=false;}
+}
+async function undoLast(){
+  if(!lastSent)return;
+  const{cell,rowEl,radioEl}=lastSent;
+  const url=document.getElementById('scriptUrl').value;
+  try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
+  rowEl.classList.remove('drafted');radioEl.disabled=false;
+  document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
+  document.getElementById('sendStatus').className='send-status';
+  lastSent=null;document.getElementById('undoBtn').disabled=true;
+}
 </script>
 </body>
 </html>
