@@ -446,4 +446,29 @@ async function sendToSheet(){
   if(!/^[A-Z]+\d+$/.test(cell)){status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';return;}
   if(!picked){status.textContent='⚠ Select a player first';status.className='send-status err';return;}
   const value=picked.value;
-  const rowEl=document.getElementById('row-'+picked.id)
+  const rowEl=document.getElementById('row-'+picked.id);
+  const url=document.getElementById('scriptUrl').value;
+  btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
+  try{
+    await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
+    rowEl.classList.add('drafted');picked.disabled=true;
+    lastSent={cell,rowEl,radioEl:picked};
+    document.getElementById('undoBtn').disabled=false;
+    status.textContent=`\u2713 ${value} \u2192 ${cell}`;status.className='send-status ok';
+    picked.checked=false;
+  }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
+  finally{btn.disabled=false;}
+}
+async function undoLast(){
+  if(!lastSent)return;
+  const{cell,rowEl,radioEl}=lastSent;
+  const url=document.getElementById('scriptUrl').value;
+  try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
+  rowEl.classList.remove('drafted');radioEl.disabled=false;
+  document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
+  document.getElementById('sendStatus').className='send-status';
+  lastSent=null;document.getElementById('undoBtn').disabled=true;
+}
+</script>
+</body>
+</html>
