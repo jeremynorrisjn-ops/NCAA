@@ -70,6 +70,20 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .player-stats{color:var(--muted);font-size:11px;font-family:'Courier New',monospace;text-align:right;white-space:nowrap}
 .player-stats strong{color:var(--text)}
 .tbd-row{color:var(--muted);font-size:12px;font-style:italic;padding:10px 12px;text-align:center}
+.btn-icon{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:14px;padding:4px 8px;line-height:1;transition:color .15s,border-color .15s}
+.btn-icon:hover{color:var(--text);border-color:var(--muted)}
+/* Names editor overlay */
+#namesOverlay{display:none;position:fixed;inset:0;background:#0009;z-index:200;align-items:center;justify-content:center}
+#namesOverlay.open{display:flex}
+#namesModal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto}
+#namesModal h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:4px}
+#namesModal p{font-size:12px;color:var(--muted);margin-bottom:18px}
+.names-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.names-row{display:flex;align-items:center;gap:8px}
+.names-lbl{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--muted);width:20px;text-align:center;flex-shrink:0}
+.names-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:13px;flex:1}
+.names-input:focus{outline:none;border-color:var(--gold)}
+.names-actions{display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -95,6 +109,7 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
         <select id="participantSel" class="cell-input" style="width:180px;cursor:pointer;" onchange="updateTargetCell()">
           <option value="">— Select Participant —</option>
         </select>
+        <button class="btn-icon" onclick="openNamesEditor()" title="Edit participant names">&#x270E;</button>
       </div>
     </div>
   </div>
@@ -491,19 +506,42 @@ function populateDropdown(){
   updateTargetCell();
 }
 async function loadNames(){
-  const sheetId='1Ow0XJl5otgqozpECOXZbpNt3Nkf9fGDEYVT78bWiIKY';
-  try{
-    const url=`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Player%20Totals&range=B1:B210`;
-    const resp=await fetch(url,{credentials:'include'});
-    const text=await resp.text();
-    const json=JSON.parse(text.replace(/^[^{]+/,'').replace(/[^}]+$/,''));
-    const rows=json.table.rows;
-    SECTIONS.forEach((s,i)=>{
-      const ri=parseInt(s.nameCell.slice(1))-1;
-      const v=rows[ri]&&rows[ri].c&&rows[ri].c[0]&&rows[ri].c[0].v;
-      if(v)SECTIONS[i].name=String(v);
-    });
-  }catch(e){console.log('Names load failed:',e);}
+  // Try reading names via Apps Script (avoids CORS issues with file:// origin)
+  const scriptUrl=document.getElementById('scriptUrl').value;
+  if(scriptUrl){
+    try{
+      const cells=SECTIONS.map(s=>s.nameCell).join(',');
+      const url=`${scriptUrl}?action=getNames&cells=${encodeURIComponent(cells)}`;
+      const resp=await fetch(url);
+      const json=await resp.json();
+      if(json&&json.names){
+        json.names.forEach((n,i)=>{if(n&&n.trim())SECTIONS[i].name=n.trim();});
+      }
+    }catch(e){console.log('Names via script failed, using defaults:',e);}
+  }
+  populateDropdown();
+}
+function openNamesEditor(){
+  const grid=document.getElementById('namesGrid');
+  grid.innerHTML='';
+  SECTIONS.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='names-row';
+    row.innerHTML=`<span class="names-lbl">${String.fromCharCode(65+i)}</span><input class="names-input" id="nameInput${i}" value="${s.name}" placeholder="Participant ${i+1}">`;
+    grid.appendChild(row);
+  });
+  document.getElementById('namesOverlay').classList.add('open');
+  document.getElementById('nameInput0').focus();
+}
+function closeNamesEditor(){
+  document.getElementById('namesOverlay').classList.remove('open');
+}
+function saveNames(){
+  SECTIONS.forEach((s,i)=>{
+    const v=document.getElementById('nameInput'+i).value.trim();
+    if(v)SECTIONS[i].name=v;
+  });
+  closeNamesEditor();
   populateDropdown();
 }
 async function sendToSheet(){
@@ -549,5 +587,16 @@ async function undoLast(){
   document.getElementById('participantSel').value=idx;
 }
 </script>
+<div id="namesOverlay" onclick="if(event.target===this)closeNamesEditor()">
+  <div id="namesModal">
+    <h2>&#x270E; Participant Names</h2>
+    <p>Enter a name for each of the 12 draft sections. These match columns A–L in your sheet.</p>
+    <div class="names-grid" id="namesGrid"></div>
+    <div class="names-actions">
+      <button class="btn btn-undo" onclick="closeNamesEditor()">Cancel</button>
+      <button class="btn btn-send" onclick="saveNames()">Save Names</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
