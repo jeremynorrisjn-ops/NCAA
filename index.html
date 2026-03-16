@@ -16,9 +16,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 header{background:var(--surface);border-bottom:2px solid var(--gold);padding:14px 24px;display:flex;align-items:center;gap:16px}
 header h1{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
 header p{color:var(--muted);font-size:12px;margin-top:2px}
-.send-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;flex-wrap:wrap}
-.send-bar label{font-size:12px;color:var(--muted);white-space:nowrap}
-.cell-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:14px;width:72px;font-family:'Courier New',monospace;letter-spacing:1px}
+.send-bar{background:var(--surface);border-bottom:2px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:10px;padding:6px 20px 6px 0;margin-right:20px;border-right:1px solid var(--border)}
+.step:last-of-type{border-right:none;margin-right:0}
+.step-num{background:var(--gold);color:#0f1117;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-body{display:flex;flex-direction:column;gap:3px}
+.step-label{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;line-height:1}
+.step-control{display:flex;align-items:center;gap:7px}
+.cell-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:14px;width:72px;font-family:'Courier New',monospace;letter-spacing:1px}
 .cell-input:focus{outline:none;border-color:var(--gold)}
 .btn{border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:6px 16px;transition:opacity .15s,background .15s;white-space:nowrap}
 .btn:disabled{opacity:.4;cursor:not-allowed}
@@ -26,7 +31,8 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .btn-send:hover:not(:disabled){opacity:.85}
 .btn-undo{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-undo:hover:not(:disabled){background:var(--border)}
-.send-status{font-size:12px;color:var(--muted);margin-left:auto;min-width:220px;text-align:right}
+.send-status{font-size:12px;color:var(--muted);margin-left:auto;padding-left:18px;text-align:right}
+.send-status.ok{color:#22c55e} .send-status.err{color:#ef4444}
 .send-status.ok{color:#22c55e} .send-status.err{color:#ef4444}
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 20px}
 .tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;padding:11px 18px;text-transform:uppercase;transition:color .15s,border-color .15s}
@@ -62,14 +68,36 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 <header>
   <div>
     <h1>&#x1F3C0; 2026 NCAA Tournament Draft Tool</h1>
-    <p>Select player &middot; Enter cell &middot; Send to Sheet &nbsp;|&nbsp; First Four: Mar 17&ndash;18 &middot; Round 1: Mar 19&ndash;20</p>
+    <p>First Four: Mar 17&ndash;18 &nbsp;&middot;&nbsp; Round 1: Mar 19&ndash;20</p>
   </div>
 </header>
 <div class="send-bar">
-  <label for="cellRef">Sheet Cell:</label>
-  <input type="text" id="cellRef" class="cell-input" placeholder="B5" maxlength="6">
-  <button class="btn btn-send" id="sendBtn" onclick="sendToSheet()">Send to Sheet</button>
-  <button class="btn btn-undo" id="undoBtn" onclick="undoLast()" disabled>&#x21A9; Undo</button>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <span class="step-label">Pick a Player</span>
+      <span style="font-size:11px;color:var(--muted);">Click any name below</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <label class="step-label" for="cellRef">Enter Cell</label>
+      <div class="step-control">
+        <input type="text" id="cellRef" class="cell-input" placeholder="B5" maxlength="6">
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <span class="step-label">Send to Sheet</span>
+      <div class="step-control">
+        <button class="btn btn-send" id="sendBtn" onclick="sendToSheet()">&#x2192; Send</button>
+        <button class="btn btn-undo" id="undoBtn" onclick="undoLast()" disabled>&#x21A9; Undo</button>
+      </div>
+    </div>
+  </div>
   <span class="send-status" id="sendStatus"></span>
 </div>
 <div class="tabs">
@@ -418,29 +446,4 @@ async function sendToSheet(){
   if(!/^[A-Z]+\d+$/.test(cell)){status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';return;}
   if(!picked){status.textContent='⚠ Select a player first';status.className='send-status err';return;}
   const value=picked.value;
-  const rowEl=document.getElementById('row-'+picked.id);
-  const url=document.getElementById('scriptUrl').value;
-  btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
-  try{
-    await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
-    rowEl.classList.add('drafted');picked.disabled=true;
-    lastSent={cell,rowEl,radioEl:picked};
-    document.getElementById('undoBtn').disabled=false;
-    status.textContent=`\u2713 ${value} \u2192 ${cell}`;status.className='send-status ok';
-    picked.checked=false;
-  }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
-  finally{btn.disabled=false;}
-}
-async function undoLast(){
-  if(!lastSent)return;
-  const{cell,rowEl,radioEl}=lastSent;
-  const url=document.getElementById('scriptUrl').value;
-  try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
-  rowEl.classList.remove('drafted');radioEl.disabled=false;
-  document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
-  document.getElementById('sendStatus').className='send-status';
-  lastSent=null;document.getElementById('undoBtn').disabled=true;
-}
-</script>
-</body>
-</html>
+  const rowEl=document.getElementById('row-'+picked.id)
