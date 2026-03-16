@@ -25,6 +25,8 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .step-control{display:flex;align-items:center;gap:7px}
 .cell-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:14px;width:72px;font-family:'Courier New',monospace;letter-spacing:1px}
 .cell-input:focus{outline:none;border-color:var(--gold)}
+.cell-input.err{border-color:#ef4444;animation:shake .2s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .btn{border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:6px 16px;transition:opacity .15s,background .15s;white-space:nowrap}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-send{background:var(--gold);color:#0f1117}
@@ -445,11 +447,17 @@ function switchTab(r,btn){
   btn.classList.add('active');document.getElementById(r).classList.add('active');
 }
 async function sendToSheet(){
-  const cell=document.getElementById('cellRef').value.trim().toUpperCase();
+  const cellEl=document.getElementById('cellRef');
+  const cell=cellEl.value.replace(/\s/g,'').toUpperCase();
   const picked=document.querySelector('input[name="pick"]:checked');
   const status=document.getElementById('sendStatus');
   const btn=document.getElementById('sendBtn');
-  if(!/^[A-Z]+\d+$/.test(cell)){status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';return;}
+  if(!/^[A-Z]+\d+$/.test(cell)){
+    status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';
+    cellEl.classList.remove('err');void cellEl.offsetWidth;cellEl.classList.add('err');
+    cellEl.focus();return;
+  }
+  cellEl.classList.remove('err');
   if(!picked){status.textContent='⚠ Select a player first';status.className='send-status err';return;}
   const value=picked.value;
   const rowEl=document.getElementById('row-'+picked.id);
