@@ -90,9 +90,11 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
   <div class="step">
     <div class="step-num">2</div>
     <div class="step-body">
-      <label class="step-label" for="cellRef">Enter Cell</label>
+      <label class="step-label" for="participantSel">Draft Pick For</label>
       <div class="step-control">
-        <input type="text" id="cellRef" class="cell-input" placeholder="B5" maxlength="6">
+        <select id="participantSel" class="cell-input" style="width:180px;cursor:pointer;" onchange="updateTargetCell()">
+          <option value="">— Select Participant —</option>
+        </select>
       </div>
     </div>
   </div>
@@ -101,6 +103,7 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
     <div class="step-body">
       <span class="step-label">Send to Sheet</span>
       <div class="step-control">
+        <span id="targetCell" style="font-family:'Courier New',monospace;font-size:13px;color:var(--gold);min-width:36px;display:inline-block;">—</span>
         <button class="btn btn-send" id="sendBtn" onclick="sendToSheet()">&#x2192; Send</button>
         <button class="btn btn-undo" id="undoBtn" onclick="undoLast()" disabled>&#x21A9; Undo</button>
       </div>
@@ -423,6 +426,22 @@ Midwest:[
 {seed:16,name:"UMBC / Howard",rec:"TBD",ff:true,tbd:true,players:[]}
 ]};
 
+// Section layout — nameCell is where participant name lives, firstRow is pick slot 1
+const SECTIONS=[
+  {name:'A',nameCell:'B2',  firstRow:5},
+  {name:'B',nameCell:'B20', firstRow:23},
+  {name:'C',nameCell:'B38', firstRow:41},
+  {name:'D',nameCell:'B56', firstRow:59},
+  {name:'E',nameCell:'B74', firstRow:77},
+  {name:'F',nameCell:'B92', firstRow:95},
+  {name:'G',nameCell:'B110',firstRow:113},
+  {name:'H',nameCell:'B128',firstRow:131},
+  {name:'I',nameCell:'B146',firstRow:149},
+  {name:'J',nameCell:'B164',firstRow:167},
+  {name:'K',nameCell:'B184',firstRow:187},
+  {name:'L',nameCell:'B203',firstRow:206},
+];
+const picks=new Array(12).fill(0);
 let lastSent=null,rid=0;
 function buildRegion(r){
   const g=document.getElementById('g-'+r);
@@ -441,24 +460,63 @@ function buildRegion(r){
   });
 }
 ['East','South','West','Midwest'].forEach(buildRegion);
+loadNames();
 function switchTab(r,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById(r).classList.add('active');
 }
+function updateTargetCell(){
+  const sel=document.getElementById('participantSel');
+  const tcEl=document.getElementById('targetCell');
+  const idx=parseInt(sel.value);
+  if(isNaN(idx)){tcEl.textContent='—';return;}
+  const s=SECTIONS[idx];
+  if(picks[idx]>=10){tcEl.textContent='FULL';return;}
+  tcEl.textContent='B'+(s.firstRow+picks[idx]);
+}
+function populateDropdown(){
+  const sel=document.getElementById('participantSel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select Participant —</option>';
+  SECTIONS.forEach((s,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i;
+    const left=10-picks[i];
+    opt.textContent=`${s.name}  (${left}/10 picks left)`;
+    if(left===0)opt.disabled=true;
+    sel.appendChild(opt);
+  });
+  if(cur!=='')sel.value=cur;
+  updateTargetCell();
+}
+async function loadNames(){
+  const sheetId='1Ow0XJl5otgqozpECOXZbpNt3Nkf9fGDEYVT78bWiIKY';
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Player%20Totals&range=B1:B210`;
+    const resp=await fetch(url,{credentials:'include'});
+    const text=await resp.text();
+    const json=JSON.parse(text.replace(/^[^{]+/,'').replace(/[^}]+$/,''));
+    const rows=json.table.rows;
+    SECTIONS.forEach((s,i)=>{
+      const ri=parseInt(s.nameCell.slice(1))-1;
+      const v=rows[ri]&&rows[ri].c&&rows[ri].c[0]&&rows[ri].c[0].v;
+      if(v)SECTIONS[i].name=String(v);
+    });
+  }catch(e){console.log('Names load failed:',e);}
+  populateDropdown();
+}
 async function sendToSheet(){
-  const cellEl=document.getElementById('cellRef');
-  const cell=cellEl.value.replace(/\s/g,'').toUpperCase();
+  const sel=document.getElementById('participantSel');
+  const idx=parseInt(sel.value);
   const picked=document.querySelector('input[name="pick"]:checked');
   const status=document.getElementById('sendStatus');
   const btn=document.getElementById('sendBtn');
-  if(!/^[A-Z]+\d+$/.test(cell)){
-    status.textContent='⚠ Enter a valid cell (e.g. B5)';status.className='send-status err';
-    cellEl.classList.remove('err');void cellEl.offsetWidth;cellEl.classList.add('err');
-    cellEl.focus();return;
-  }
-  cellEl.classList.remove('err');
-  if(!picked){status.textContent='⚠ Select a player first';status.className='send-status err';return;}
+  if(isNaN(idx)){status.textContent='\u26a0 Select a participant first';status.className='send-status err';return;}
+  if(!picked){status.textContent='\u26a0 Select a player first';status.className='send-status err';return;}
+  const s=SECTIONS[idx];
+  if(picks[idx]>=10){status.textContent='\u26a0 That section is full (10/10)';status.className='send-status err';return;}
+  const cell='B'+(s.firstRow+picks[idx]);
   const value=picked.value;
   const rowEl=document.getElementById('row-'+picked.id);
   const url=document.getElementById('scriptUrl').value;
@@ -466,22 +524,29 @@ async function sendToSheet(){
   try{
     await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
     rowEl.classList.add('drafted');picked.disabled=true;
-    lastSent={cell,rowEl,radioEl:picked};
+    lastSent={cell,rowEl,radioEl:picked,idx};
+    picks[idx]++;
     document.getElementById('undoBtn').disabled=false;
-    status.textContent=`\u2713 ${value} \u2192 ${cell}`;status.className='send-status ok';
+    status.textContent=`\u2713 ${s.name} pick ${picks[idx]}/10 \u2192 ${cell}: ${value}`;
+    status.className='send-status ok';
     picked.checked=false;
+    populateDropdown();
+    sel.value=idx;
   }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
   finally{btn.disabled=false;}
 }
 async function undoLast(){
   if(!lastSent)return;
-  const{cell,rowEl,radioEl}=lastSent;
+  const{cell,rowEl,radioEl,idx}=lastSent;
   const url=document.getElementById('scriptUrl').value;
   try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
   rowEl.classList.remove('drafted');radioEl.disabled=false;
+  if(idx!==undefined&&picks[idx]>0)picks[idx]--;
   document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
   document.getElementById('sendStatus').className='send-status';
   lastSent=null;document.getElementById('undoBtn').disabled=true;
+  populateDropdown();
+  document.getElementById('participantSel').value=idx;
 }
 </script>
 </body>
