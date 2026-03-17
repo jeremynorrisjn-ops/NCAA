@@ -229,9 +229,8 @@ const SECTIONS=[
   {name:'K',nameCell:'B184',firstRow:187},
   {name:'L',nameCell:'B203',firstRow:206},
   {name:'M',nameCell:'B222',firstRow:225},
-  {name:'N',nameCell:'B241',firstRow:244},
 ];
-const picks=new Array(14).fill(0);
+const picks=new Array(13).fill(0);
 let lastSent=null,rid=0;
 function buildRegion(r){
   const g=document.getElementById('g-'+r);
@@ -365,7 +364,7 @@ async function undoLast(){
 <div id="namesOverlay" onclick="if(event.target===this)closeNamesEditor()">
   <div id="namesModal">
     <h2>&#x270E; Participant Names</h2>
-    <p>Enter a name for each of the 12 draft sections. These match columns A–L in your sheet.</p>
+    <p>Enter a name for each of the 12 draft sections. These match columns A–M in your sheet.</p>
     <div class="names-grid" id="namesGrid"></div>
     <div class="names-actions">
       <button class="btn btn-undo" onclick="closeNamesEditor()">Cancel</button>
