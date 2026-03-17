@@ -97,13 +97,6 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
   <div class="step">
     <div class="step-num">1</div>
     <div class="step-body">
-      <span class="step-label">Pick a Player</span>
-      <span style="font-size:11px;color:var(--muted);">Click any name below</span>
-    </div>
-  </div>
-  <div class="step">
-    <div class="step-num">2</div>
-    <div class="step-body">
       <label class="step-label" for="participantSel">Draft Pick For</label>
       <div class="step-control">
         <select id="participantSel" class="cell-input" style="width:180px;cursor:pointer;" onchange="updateTargetCell()">
@@ -111,6 +104,13 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
         </select>
         <button class="btn-icon" onclick="openNamesEditor()" title="Edit participant names">&#x270E;</button>
       </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <span class="step-label">Pick a Player</span>
+      <span style="font-size:11px;color:var(--muted);">Click any name below</span>
     </div>
   </div>
   <div class="step">
