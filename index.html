@@ -228,9 +228,8 @@ const SECTIONS=[
   {name:'J',nameCell:'B164',firstRow:167},
   {name:'K',nameCell:'B184',firstRow:187},
   {name:'L',nameCell:'B203',firstRow:206},
-  {name:'M',nameCell:'B222',firstRow:225},
 ];
-const picks=new Array(13).fill(0);
+const picks=new Array(12).fill(0);
 let lastSent=null,rid=0;
 function buildRegion(r){
   const g=document.getElementById('g-'+r);
@@ -332,19 +331,19 @@ async function sendToSheet(){
   const value=picked.value;
   const rowEl=document.getElementById('row-'+picked.id);
   const url=document.getElementById('scriptUrl').value;
-  btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
+  btn.disabled=true;status.textContent='Sending…';status.className='send-status';
   try{
     await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
     rowEl.classList.add('drafted');picked.disabled=true;
     lastSent={cell,rowEl,radioEl:picked,idx};
     picks[idx]++;
     document.getElementById('undoBtn').disabled=false;
-    status.textContent=`\u2713 ${s.name} pick ${picks[idx]}/10 \u2192 ${cell}: ${value}`;
+    status.textContent=`✓ ${s.name} pick ${picks[idx]}/10 → ${cell}: ${value}`;
     status.className='send-status ok';
     picked.checked=false;
     populateDropdown();
     sel.value=idx;
-  }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
+  }catch(e){status.textContent='✕ Failed — check Apps Script deployment';status.className='send-status err';}
   finally{btn.disabled=false;}
 }
 async function undoLast(){
@@ -354,7 +353,7 @@ async function undoLast(){
   try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
   rowEl.classList.remove('drafted');radioEl.disabled=false;
   if(idx!==undefined&&picks[idx]>0)picks[idx]--;
-  document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
+  document.getElementById('sendStatus').textContent=`↩ Undone: ${cell} cleared`;
   document.getElementById('sendStatus').className='send-status';
   lastSent=null;document.getElementById('undoBtn').disabled=true;
   populateDropdown();
@@ -364,7 +363,7 @@ async function undoLast(){
 <div id="namesOverlay" onclick="if(event.target===this)closeNamesEditor()">
   <div id="namesModal">
     <h2>&#x270E; Participant Names</h2>
-    <p>Enter a name for each of the 12 draft sections. These match columns A–M in your sheet.</p>
+    <p>Enter a name for each of the 12 draft sections. These match columns A–L in your sheet.</p>
     <div class="names-grid" id="namesGrid"></div>
     <div class="names-actions">
       <button class="btn btn-undo" onclick="closeNamesEditor()">Cancel</button>
