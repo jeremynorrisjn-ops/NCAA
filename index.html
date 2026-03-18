@@ -84,6 +84,15 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .names-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:13px;flex:1}
 .names-input:focus{outline:none;border-color:var(--gold)}
 .names-actions{display:flex;gap:10px;justify-content:flex-end}
+/* Snake draft banner */
+.snake-banner{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:10px;font-size:13px;transition:background .4s,border-color .4s}
+.snake-banner.your-turn{background:#f5c84218;border-bottom-color:var(--gold)}
+.snake-banner.complete{opacity:.6}
+.snake-lbl{color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}
+.snake-name{font-weight:600;font-size:14px}
+.snake-progress{color:var(--muted);font-size:11px}
+.snake-youbadge{background:var(--gold);color:#0f1117;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border-radius:4px;padding:2px 9px;text-transform:uppercase;animation:youpulse .8s ease-in-out infinite alternate}
+@keyframes youpulse{from{opacity:1}to{opacity:.65}}
 </style>
 </head>
 <body>
@@ -93,13 +102,19 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
     <p>First Four: Mar 17&ndash;18 &nbsp;&middot;&nbsp; Round 1: Mar 19&ndash;20</p>
   </div>
 </header>
+<div id="snakeBanner" class="snake-banner">
+  <span class="snake-lbl">🐍 Now Picking</span>
+  <strong id="snakeName" class="snake-name">—</strong>
+  <span id="snakeProgress" class="snake-progress"></span>
+  <span id="snakeYouBadge" class="snake-youbadge" style="display:none">YOUR PICK!</span>
+</div>
 <div class="send-bar">
   <div class="step">
     <div class="step-num">1</div>
     <div class="step-body">
       <label class="step-label" for="participantSel">Draft Pick For</label>
       <div class="step-control">
-        <select id="participantSel" class="cell-input" style="width:180px;cursor:pointer;" onchange="updateTargetCell()">
+        <select id="participantSel" class="cell-input" style="width:180px;cursor:pointer;" onchange="updateTargetCell();updateSnakeBanner()">
           <option value="">— Select Participant —</option>
         </select>
         <button class="btn-icon" onclick="openNamesEditor()" title="Edit participant names">&#x270E;</button>
@@ -271,11 +286,53 @@ async function syncDrafted(){
     if(json&&json.counts){
       json.counts.forEach((c,i)=>{picks[i]=Math.max(picks[i],c);});
       populateDropdown();
+      updateSnakeBanner();
     }
   }catch(e){console.log('Sync error:',e);}
 }
 syncDrafted();
 setInterval(syncDrafted,5000);
+// ── Snake draft banner ──────────────────────────────────────
+let snakeLastNotifiedTotal=-1;
+function getCurrentDrafter(){
+  const total=picks.reduce((a,b)=>a+b,0);
+  if(total>=120)return -1;
+  const round=Math.floor(total/12);
+  const pos=total%12;
+  return round%2===0?pos:11-pos;
+}
+function updateSnakeBanner(){
+  const idx=getCurrentDrafter();
+  const total=picks.reduce((a,b)=>a+b,0);
+  const banner=document.getElementById('snakeBanner');
+  const nameEl=document.getElementById('snakeName');
+  const progEl=document.getElementById('snakeProgress');
+  const badgeEl=document.getElementById('snakeYouBadge');
+  const myIdx=parseInt(document.getElementById('participantSel').value);
+  if(idx===-1){
+    nameEl.textContent='Draft Complete!';
+    progEl.textContent='All 120 picks made';
+    banner.className='snake-banner complete';
+    badgeEl.style.display='none';
+    return;
+  }
+  const round=Math.floor(total/12)+1;
+  nameEl.textContent=SECTIONS[idx].name;
+  progEl.textContent=`· Pick ${total+1} of 120 · Round ${round}`;
+  const isMyTurn=!isNaN(myIdx)&&idx===myIdx;
+  banner.className='snake-banner'+(isMyTurn?' your-turn':'');
+  badgeEl.style.display=isMyTurn?'inline':'none';
+  if(isMyTurn&&snakeLastNotifiedTotal!==total){
+    snakeLastNotifiedTotal=total;
+    if(Notification&&Notification.permission==='granted'){
+      new Notification("It's your pick!",{body:`Round ${round} — make your selection`});
+    }
+  }
+}
+// Request notification permission on load
+if(typeof Notification!=='undefined'&&Notification.permission==='default'){
+  Notification.requestPermission();
+}
 function switchTab(r,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));
@@ -320,6 +377,7 @@ async function loadNames(){
     }catch(e){console.log('Names via script failed, using defaults:',e);}
   }
   populateDropdown();
+  updateSnakeBanner();
 }
 function openNamesEditor(){
   const grid=document.getElementById('namesGrid');
@@ -369,6 +427,7 @@ async function sendToSheet(){
     status.className='send-status ok';
     picked.checked=false;
     populateDropdown();
+    updateSnakeBanner();
     sel.value=idx;
   }catch(e){status.textContent='\u2715 Failed \u2014 check Apps Script deployment';status.className='send-status err';}
   finally{btn.disabled=false;}
@@ -384,6 +443,7 @@ async function undoLast(){
   document.getElementById('sendStatus').className='send-status';
   lastSent=null;document.getElementById('undoBtn').disabled=true;
   populateDropdown();
+  updateSnakeBanner();
   document.getElementById('participantSel').value=idx;
 }
 </script>
