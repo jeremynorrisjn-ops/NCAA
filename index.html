@@ -230,6 +230,7 @@ const SECTIONS=[
   {name:'Owen Norris',     nameCell:'B203',firstRow:206},
 ];
 const picks=new Array(12).fill(0);
+const drafted=new Set();
 let lastSent=null,rid=0;
 function buildRegion(r){
   const g=document.getElementById('g-'+r);
@@ -249,6 +250,32 @@ function buildRegion(r){
 }
 ['East','South','West','Midwest'].forEach(buildRegion);
 loadNames();
+function markDraftedInUI(value){
+  document.querySelectorAll('input[name="pick"]').forEach(r=>{
+    if(r.value===value){
+      r.disabled=true;
+      const row=document.getElementById('row-'+r.id);
+      if(row)row.classList.add('drafted');
+    }
+  });
+}
+async function syncDrafted(){
+  const url=document.getElementById('scriptUrl').value;
+  if(!url)return;
+  try{
+    const resp=await fetch(`${url}?action=getDrafted`);
+    const json=await resp.json();
+    if(json&&json.drafted){
+      json.drafted.forEach(v=>{if(!drafted.has(v)){drafted.add(v);markDraftedInUI(v);}});
+    }
+    if(json&&json.counts){
+      json.counts.forEach((c,i)=>{picks[i]=Math.max(picks[i],c);});
+      populateDropdown();
+    }
+  }catch(e){console.log('Sync error:',e);}
+}
+syncDrafted();
+setInterval(syncDrafted,5000);
 function switchTab(r,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));
@@ -334,7 +361,7 @@ async function sendToSheet(){
   btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
   try{
     await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
-    rowEl.classList.add('drafted');picked.disabled=true;
+    drafted.add(value);rowEl.classList.add('drafted');picked.disabled=true;
     lastSent={cell,rowEl,radioEl:picked,idx};
     picks[idx]++;
     document.getElementById('undoBtn').disabled=false;
