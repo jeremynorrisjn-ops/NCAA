@@ -341,25 +341,42 @@ function togglePicksDrawer(){
   const open=drawer.classList.toggle('open');
   overlay.classList.toggle('open',open);
   btn.classList.toggle('active',open);
-  if(open)updatePicksPanel();
+  if(open){
+    // Sync drawer dropdown to main dropdown selection when opening
+    const mainIdx=document.getElementById('participantSel').value;
+    const drawerSel=document.getElementById('picksDrawerSel');
+    if(mainIdx!==''&&drawerSel.value==='')drawerSel.value=mainIdx;
+    updatePicksPanel();
+  }
+}
+function populatePicksDrawerDropdown(){
+  const sel=document.getElementById('picksDrawerSel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select Participant —</option>';
+  SECTIONS.forEach((s,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i;
+    opt.textContent=s.name;
+    sel.appendChild(opt);
+  });
+  if(cur!=='')sel.value=cur;
 }
 function updatePicksPanel(){
   const drawer=document.getElementById('picksDrawer');
   if(!drawer.classList.contains('open'))return;
-  const idx=parseInt(document.getElementById('participantSel').value);
-  const nameEl=document.getElementById('picksDrawerName');
+  // Use drawer's own dropdown — falls back to main dropdown if drawer sel is empty
+  let idx=parseInt(document.getElementById('picksDrawerSel').value);
+  if(isNaN(idx))idx=parseInt(document.getElementById('participantSel').value);
   const subEl=document.getElementById('picksDrawerSub');
   const listEl=document.getElementById('picksList');
   if(isNaN(idx)){
-    nameEl.textContent='My Picks';
-    subEl.textContent='Select a participant';
-    listEl.innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px">Select a participant from the dropdown to see their picks.</div>';
+    subEl.textContent='';
+    listEl.innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px">Select a participant above to see their picks.</div>';
     return;
   }
   const s=SECTIONS[idx];
   const myPicks=draftedBySection[idx];
-  nameEl.textContent=s.name;
-  subEl.textContent=`${myPicks.length} of 10 picks made`;
+  subEl.textContent=`${s.name} — ${myPicks.length} of 10 picks made`;
   let html='';
   for(let i=0;i<10;i++){
     const player=myPicks[i]||'';
@@ -469,6 +486,7 @@ async function loadNames(){
     }catch(e){console.log('Names via script failed, using defaults:',e);}
   }
   populateDropdown();
+  populatePicksDrawerDropdown();
   updateSnakeBanner();
 }
 function openNamesEditor(){
@@ -559,12 +577,15 @@ async function undoLast(){
 <!-- Picks drawer -->
 <div id="picksDrawer" class="picks-drawer">
   <div class="picks-drawer-hd">
-    <div>
-      <div id="picksDrawerName" class="picks-drawer-name">My Picks</div>
-      <div id="picksDrawerSub" class="picks-drawer-sub">Select a participant</div>
+    <div style="flex:1;min-width:0">
+      <div class="picks-drawer-name" style="margin-bottom:6px">📋 Picks Viewer</div>
+      <select id="picksDrawerSel" class="cell-input" style="width:100%;cursor:pointer" onchange="updatePicksPanel()">
+        <option value="">— Select Participant —</option>
+      </select>
     </div>
-    <button class="picks-drawer-close" onclick="togglePicksDrawer()">&#x2715;</button>
+    <button class="picks-drawer-close" style="margin-left:8px;flex-shrink:0" onclick="togglePicksDrawer()">&#x2715;</button>
   </div>
+  <div id="picksDrawerSub" class="picks-drawer-sub" style="padding:6px 14px;border-bottom:1px solid var(--border)"></div>
   <div id="picksList" class="picks-list"></div>
 </div>
 </body>
