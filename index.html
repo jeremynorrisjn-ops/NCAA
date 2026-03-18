@@ -92,6 +92,7 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .snake-name{font-weight:600;font-size:14px}
 .snake-progress{color:var(--muted);font-size:11px}
 .snake-youbadge{background:var(--gold);color:#0f1117;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border-radius:4px;padding:2px 9px;text-transform:uppercase;animation:youpulse .8s ease-in-out infinite alternate}
+.snake-last{font-size:13px;color:var(--text)} .snake-last em{color:var(--muted);font-style:normal;font-size:11px}
 @keyframes youpulse{from{opacity:1}to{opacity:.65}}
 </style>
 </head>
@@ -107,6 +108,11 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
   <strong id="snakeName" class="snake-name">—</strong>
   <span id="snakeProgress" class="snake-progress"></span>
   <span id="snakeYouBadge" class="snake-youbadge" style="display:none">YOUR PICK!</span>
+  <span id="snakeLastWrap" style="display:none;margin-left:auto;display:flex;align-items:center;gap:8px;margin-left:auto">
+    <span style="color:var(--border)">|</span>
+    <span class="snake-lbl">Last Pick</span>
+    <span id="snakeLastPick" class="snake-last"></span>
+  </span>
 </div>
 <div class="send-bar">
   <div class="step">
@@ -280,11 +286,21 @@ async function syncDrafted(){
   try{
     const resp=await fetch(`${url}?action=getDrafted`);
     const json=await resp.json();
-    if(json&&json.drafted){
-      json.drafted.forEach(v=>{if(!drafted.has(v)){drafted.add(v);markDraftedInUI(v);}});
-    }
-    if(json&&json.counts){
-      json.counts.forEach((c,i)=>{picks[i]=Math.max(picks[i],c);});
+    if(json&&json.drafted&&json.counts){
+      // drafted array is ordered by section, so we can attribute each pick to its participant
+      let pos=0;
+      json.counts.forEach((c,i)=>{
+        for(let j=0;j<c;j++){
+          const v=json.drafted[pos+j];
+          if(v&&!drafted.has(v)){
+            drafted.add(v);
+            markDraftedInUI(v);
+            lastPickInfo={player:v,by:SECTIONS[i].name};
+          }
+        }
+        pos+=c;
+        picks[i]=Math.max(picks[i],c);
+      });
       populateDropdown();
       updateSnakeBanner();
     }
@@ -294,6 +310,7 @@ syncDrafted();
 setInterval(syncDrafted,5000);
 // ── Snake draft banner ──────────────────────────────────────
 let snakeLastNotifiedTotal=-1;
+let lastPickInfo=null;
 function getCurrentDrafter(){
   const total=picks.reduce((a,b)=>a+b,0);
   if(total>=120)return -1;
@@ -327,6 +344,15 @@ function updateSnakeBanner(){
     if(Notification&&Notification.permission==='granted'){
       new Notification("It's your pick!",{body:`Round ${round} — make your selection`});
     }
+  }
+  // Last pick display
+  const lastWrap=document.getElementById('snakeLastWrap');
+  const lastEl=document.getElementById('snakeLastPick');
+  if(lastPickInfo){
+    lastEl.innerHTML=`${lastPickInfo.player} <em>by ${lastPickInfo.by}</em>`;
+    lastWrap.style.display='flex';
+  } else {
+    lastWrap.style.display='none';
   }
 }
 // Request notification permission on load
@@ -421,6 +447,7 @@ async function sendToSheet(){
     await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
     drafted.add(value);rowEl.classList.add('drafted');picked.disabled=true;
     lastSent={cell,rowEl,radioEl:picked,idx};
+    lastPickInfo={player:value,by:SECTIONS[idx].name};
     picks[idx]++;
     document.getElementById('undoBtn').disabled=false;
     status.textContent=`\u2713 ${s.name} pick ${picks[idx]}/10 \u2192 ${cell}: ${value}`;
