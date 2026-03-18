@@ -110,6 +110,9 @@ header p{color:var(--muted);font-size:12px;margin-top:2px}
 .pick-player.empty{color:var(--border);font-style:italic}
 .picks-drawer-overlay{display:none;position:fixed;inset:0;z-index:199}
 .picks-drawer-overlay.open{display:block}
+.pick-badge{display:inline-flex;align-items:center;gap:4px;margin-top:3px}
+.pick-region{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;opacity:.9}
+.pick-seed-num{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;background:rgba(255,255,255,.07);border-radius:3px;padding:0px 4px;line-height:16px}
 .btn-picks{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 12px;white-space:nowrap;transition:color .15s,border-color .15s}
 .btn-picks:hover{color:var(--text);border-color:var(--muted)}
 .btn-picks.active{color:var(--gold);border-color:var(--gold)}
@@ -335,6 +338,15 @@ async function syncDrafted(){
 }
 syncDrafted();
 setInterval(syncDrafted,5000);
+// ── Team lookup helper ───────────────────────────────────────
+const REGION_COLORS={East:'var(--r-east)',South:'var(--r-south)',West:'var(--r-west)',Midwest:'var(--r-midwest)'};
+function getTeamInfo(teamName){
+  for(const region of Object.keys(B)){
+    const t=B[region].find(t=>t.name===teamName);
+    if(t)return{region,seed:t.seed,color:REGION_COLORS[region]};
+  }
+  return null;
+}
 // ── Picks drawer ────────────────────────────────────────────
 function togglePicksDrawer(){
   const drawer=document.getElementById('picksDrawer');
@@ -387,9 +399,14 @@ function updatePicksPanel(){
     // Strip team suffix for shorter display (keep just player name)
     const display=player?player.replace(/ - [^-]+$/,''):'empty';
     const team=player?player.replace(/^.* - /,''):'';
+    const info=team?getTeamInfo(team):null;
+    const badgeHtml=info?`<span class="pick-badge">
+      <span class="pick-region" style="color:${info.color}">${info.region}</span>
+      <span class="pick-seed-num" style="color:${info.color}">#${info.seed}</span>
+    </span>`:'';
     html+=`<div class="pick-item">
       <span class="pick-num">${i+1}</span>
-      <span class="pick-player${empty?' empty':''}">${empty?'—':display}<br>${team?`<span style="color:var(--muted);font-size:10px">${team}</span>`:''}</span>
+      <span class="pick-player${empty?' empty':''}">${empty?'—':display}${team?`<br><span style="color:var(--muted);font-size:10px">${team}</span>`:''}${badgeHtml?'<br>'+badgeHtml:''}</span>
     </div>`;
   }
   listEl.innerHTML=html;
