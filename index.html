@@ -270,8 +270,11 @@ const SECTIONS=[
   {name:'Tim O\'Conner',   nameCell:'B164',firstRow:167},
   {name:'Jeremy Norris',   nameCell:'B184',firstRow:187},
   {name:'Owen Norris',     nameCell:'B203',firstRow:206},
+  {name:'',                nameCell:'B222',firstRow:225},
+  {name:'',                nameCell:'B241',firstRow:244},
+  {name:'',                nameCell:'B259',firstRow:262},
 ];
-const picks=new Array(12).fill(0);
+const picks=new Array(15).fill(0);
 const drafted=new Set();
 const draftedBySection=SECTIONS.map(()=>[]);
 let lastSent=null,rid=0;
@@ -353,6 +356,7 @@ function populatePicksDrawerDropdown(){
   const cur=sel.value;
   sel.innerHTML='<option value="">— Select Participant —</option>';
   SECTIONS.forEach((s,i)=>{
+    if(!s.name||!s.name.trim())return;
     const opt=document.createElement('option');
     opt.value=i;
     opt.textContent=s.name;
@@ -393,36 +397,46 @@ function updatePicksPanel(){
 // ── Snake draft banner ──────────────────────────────────────
 let snakeLastNotifiedTotal=-1;
 let lastPickInfo=null;
+function getActiveIndices(){
+  return SECTIONS.map((_,i)=>i).filter(i=>SECTIONS[i].name&&SECTIONS[i].name.trim());
+}
 function getCurrentDrafter(){
-  const total=picks.reduce((a,b)=>a+b,0);
-  if(total>=120)return -1;
-  const round=Math.floor(total/12);
-  const pos=total%12;
-  return round%2===0?pos:11-pos;
+  const active=getActiveIndices();
+  const n=active.length;
+  if(n===0)return -1;
+  const total=active.reduce((a,i)=>a+picks[i],0);
+  if(total>=n*10)return -1;
+  const round=Math.floor(total/n);
+  const pos=total%n;
+  const activeIdx=round%2===0?pos:(n-1)-pos;
+  return active[activeIdx];
 }
 function updateSnakeBanner(){
   const idx=getCurrentDrafter();
-  const total=picks.reduce((a,b)=>a+b,0);
   const banner=document.getElementById('snakeBanner');
   const nameEl=document.getElementById('snakeName');
   const progEl=document.getElementById('snakeProgress');
   const badgeEl=document.getElementById('snakeYouBadge');
   const myIdx=parseInt(document.getElementById('participantSel').value);
+  const active=getActiveIndices();
+  const n=active.length;
+  const totalActive=active.reduce((a,i)=>a+picks[i],0);
+  const maxPicks=n*10;
   if(idx===-1){
     nameEl.textContent='Draft Complete!';
-    progEl.textContent='All 120 picks made';
+    progEl.textContent=`All ${maxPicks} picks made`;
     banner.className='snake-banner complete';
     badgeEl.style.display='none';
     return;
   }
-  const round=Math.floor(total/12)+1;
+  const round=Math.floor(totalActive/n)+1;
   nameEl.textContent=SECTIONS[idx].name;
-  progEl.textContent=`· Pick ${total+1} of 120 · Round ${round}`;
+  progEl.textContent=`· Pick ${totalActive+1} of ${maxPicks} · Round ${round}`;
   const isMyTurn=!isNaN(myIdx)&&idx===myIdx;
   banner.className='snake-banner'+(isMyTurn?' your-turn':'');
   badgeEl.style.display=isMyTurn?'inline':'none';
-  if(isMyTurn&&snakeLastNotifiedTotal!==total){
-    snakeLastNotifiedTotal=total;
+  if(isMyTurn&&snakeLastNotifiedTotal!==totalActive){
+    snakeLastNotifiedTotal=totalActive;
     if(Notification&&Notification.permission==='granted'){
       new Notification("It's your pick!",{body:`Round ${round} — make your selection`});
     }
@@ -460,6 +474,7 @@ function populateDropdown(){
   const cur=sel.value;
   sel.innerHTML='<option value="">— Select Participant —</option>';
   SECTIONS.forEach((s,i)=>{
+    if(!s.name||!s.name.trim())return;
     const opt=document.createElement('option');
     opt.value=i;
     const left=10-picks[i];
@@ -563,7 +578,7 @@ async function undoLast(){
 <div id="namesOverlay" onclick="if(event.target===this)closeNamesEditor()">
   <div id="namesModal">
     <h2>&#x270E; Participant Names</h2>
-    <p>Enter a name for each of the 12 draft sections. These match columns A–L in your sheet.</p>
+    <p>Enter a name for each of up to 15 draft sections. Blank names are skipped in the draft.</p>
     <div class="names-grid" id="namesGrid"></div>
     <div class="names-actions">
       <button class="btn btn-undo" onclick="closeNamesEditor()">Cancel</button>
