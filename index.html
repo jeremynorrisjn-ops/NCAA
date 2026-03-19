@@ -559,7 +559,7 @@ async function sendToSheet(){
   const url=document.getElementById('scriptUrl').value;
   btn.disabled=true;status.textContent='Sending\u2026';status.className='send-status';
   try{
-    await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}`);
+    await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=${encodeURIComponent(value)}&writeColB=true`);
     drafted.add(value);rowEl.classList.add('drafted');picked.disabled=true;
     lastSent={cell,rowEl,radioEl:picked,idx};
     lastPickInfo={player:value,by:SECTIONS[idx].name};
@@ -580,7 +580,7 @@ async function undoLast(){
   if(!lastSent)return;
   const{cell,rowEl,radioEl,idx}=lastSent;
   const url=document.getElementById('scriptUrl').value;
-  try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=`);}catch(e){}
+  try{await fetch(`${url}?sheet=Player%20Totals&cell=${encodeURIComponent(cell)}&value=&writeColB=true`);}catch(e){}
   rowEl.classList.remove('drafted');radioEl.disabled=false;
   if(idx!==undefined&&picks[idx]>0){picks[idx]--;draftedBySection[idx].pop();}
   document.getElementById('sendStatus').textContent=`\u21A9 Undone: ${cell} cleared`;
